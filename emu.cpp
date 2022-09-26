@@ -1,11 +1,11 @@
 #include <iostream>
-#include "chip8.cpp"
-#include <SDL2/SDL.h>
 #include <unistd.h>
+#include <SDL2/SDL.h>
+#include "chip8.cpp"
 
 int main(int argc, char **argv) {
   if (argc != 2) {
-    std::cout << "arguments error" << std::endl;
+    std::cout << "Arguments error!" << std::endl;
     return -1;
   }
 
@@ -34,10 +34,10 @@ int main(int argc, char **argv) {
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
         case SDL_QUIT:
+          std::cout << "Shutdown..." << std::endl;
           SDL_DestroyRenderer(renderer);
           SDL_DestroyWindow(window);
           SDL_Quit();
-          std::cout << "Shutdown..." << std::endl;
           return 0;
         case SDL_KEYDOWN:
           switch (event.key.keysym.sym) {
@@ -152,7 +152,7 @@ int main(int argc, char **argv) {
         for (int j = 0; j < 64; j++) {
           pixel.x = 10 * j;
           pixel.y = 10 * i;
-          if (chip8.frame[i][j] == 1) {
+          if (chip8.frameBuf[i][j] == 1) {
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
           } else {
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -160,9 +160,9 @@ int main(int argc, char **argv) {
           SDL_RenderFillRect(renderer, &pixel);
         }
       }
-      SDL_RenderPresent(renderer);  // This function should not be placed in the loop!
+      SDL_RenderPresent(renderer);  // This function should not be placed in the loop
     }
 
-    usleep(1500); // Can change game speed
+    usleep(1200); // Can change game speed
   }
 }

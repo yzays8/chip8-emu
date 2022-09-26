@@ -2,61 +2,58 @@
 #include <ctime>
 #include <cstdlib>
 #include <fstream>
-#include "fontset.h"
 #include <SDL2/SDL.h>
+#include "chip8.h"
 
-const int MEM_SIZE = 4096;
-
-class Chip8 {
- public:
-  Chip8() {
-    pc = 0x200;
-    i = 0;
-    sp = 0;
-    dt = 0;
-    st = 0;
-    isDrew = false;
-    for (int i = 0; i < sizeof(v)/sizeof(v[0]); i++) {
-      v[i] = 0;
+Chip8::Chip8() {
+  pc = 0x200;
+  i = 0;
+  sp = 0;
+  dt = 0;
+  st = 0;
+  isDrew = false;
+  for (int i = 0; i < 16; i++) {
+    v[i] = 0;
+  }
+  for (int i = 0; i < 16; i++) {
+    stack[i] = 0;
+  }
+  for (int i = 0; i < 4096; i++) {
+    mem[i] = 0;
+  }
+  for (int i = 0; i < 32; i++) {
+    for (int j = 0; j < 64; j++) {
+      frameBuf[i][j] = 0;
     }
-    for (int i = 0; i < sizeof(stack)/sizeof(stack[0]); i++) {
-      stack[i] = 0;
-    }
-    for (int i = 0; i < MEM_SIZE; i++) {
-      mem[i] = 0;
-    }
-    for (int i = 0; i < 32; i++) {
-      for (int j = 0; j < 64; j++) {
-        frameBuf[i][j] = 0;
-      }
-    }
-    for (int i = 0; i < sizeof(sprites)/sizeof(sprites[0]); i++) {
-      mem[i] = sprites[i];
-    }
-    for (int i = 0; i < 16; i++) {
-      key[i] = 0;
-    }
-    srand((unsigned)time(NULL));
+  }
+  for (int i = 0; i < 16; i++) {
+    key[i] = 0;
   }
 
-  uint8_t mem[MEM_SIZE];
-  int frameBuf[32][64];  // 0:black, 1:white
-  int key[16];
-  bool isDrew;
-  void loadROM(const std::string rom);
-  void interpretInstruction(const uint16_t ins);
-  void runLoop();
-  ~Chip8(){};
+  const uint8_t sprites[80] = {
+    0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+    0x20, 0x60, 0x20, 0x20, 0x70, // 1
+    0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+    0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+    0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+    0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+    0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+    0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+    0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+    0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+    0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+    0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+    0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+    0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+    0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+    0xF0, 0x80, 0xF0, 0x80, 0x80, // F
+  };
+  for (int i = 0; i < 80; i++) {
+    mem[i] = sprites[i];
+  }
 
-  private:
-   uint8_t v[16];
-   uint16_t i;
-   uint16_t pc;
-   uint8_t sp;
-   uint16_t stack[16];
-   uint8_t dt;
-   uint8_t st;
-};
+  srand((unsigned)time(NULL));
+}
 
 void Chip8::loadROM(const std::string rom) {
   std::ifstream ifs(rom, std::ios::binary | std::ios::in);
@@ -69,12 +66,11 @@ void Chip8::loadROM(const std::string rom) {
 }
 
 void Chip8::interpretInstruction(const uint16_t ins) {
-  printf("Instruction tracking: 0x%X\n", ins);
+  //printf("Instruction tracking: 0x%X\n", ins);
   switch (ins & 0xF000) {
     case 0x0000:
       switch (ins) {
         case 0x00E0:
-          // clear display
           for (int i = 0; i < 32; i++) {
             for (int j = 0; j < 64; j++) {
               frameBuf[i][j] = 0;
@@ -84,79 +80,78 @@ void Chip8::interpretInstruction(const uint16_t ins) {
           pc += 2;
           break;
         case 0x00EE:
-          //pc = stack[sp--];
           pc = stack[--sp];
           pc += 2;
           break;
         default:
-          std::cout << "Non-existent instruction: 0x" << std::uppercase << std::hex << ins << std::endl;
+          std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << ins << std::endl;
           exit(1);
       }
       break;
-    // 0x1nnn
     case 0x1000:
+      // 0x1nnn
       pc = ins & 0x0FFF;
       break;
-    // 0x2nnn
     case 0x2000:
+      // 0x2nnn
       stack[sp++] = pc;
       pc = ins & 0x0FFF;
       break;
-    // 0x3xkk
     case 0x3000:
+      // 0x3xkk
       if (v[(ins & 0x0F00) >> 8] == (ins & 0x00FF)) {
         pc += 2;
       }
       pc += 2;
       break;
-    // 0x4xkk
     case 0x4000:
+      // 0x4xkk
       if (v[(ins & 0x0F00) >> 8] != (ins & 0x00FF)) {
         pc += 2;
       }
       pc += 2;
       break;
-    // 0x5xy0
     case 0x5000:
+      // 0x5xy0
       if (v[(ins & 0x0F00) >> 8] == v[(ins & 0x00F0) >> 4]) {
         pc += 2;
       }
       pc += 2;
       break;
-    // 0x6xkk
     case 0x6000:
+      // 0x6xkk
       v[(ins & 0x0F00) >> 8] = ins & 0x00FF;
       pc += 2;
       break;
-    // 0x7xkk
     case 0x7000:
+      // 0x7xkk
       v[(ins & 0x0F00) >> 8] += ins & 0x00FF;
       pc += 2;
       break;
     case 0x8000:
       switch (ins & 0x000F) {
-        // 0x8xy0
         case 0x0000:
+          // 0x8xy0
           v[(ins & 0x0F00) >> 8] = v[(ins & 0x00F0) >> 4];
           pc += 2;
           break;
-        // 0x8xy1
         case 0x0001:
+          // 0x8xy1
           v[(ins & 0x0F00) >> 8] |= v[(ins & 0x00F0) >> 4];
           pc += 2;
           break;
-        // 0x8xy2
         case 0x0002:
+          // 0x8xy2
           v[(ins & 0x0F00) >> 8] &= v[(ins & 0x00F0) >> 4];
           pc += 2;
           break;
-        // 0x8xy3
         case 0x0003:
+          // 0x8xy3
           v[(ins & 0x0F00) >> 8] ^= v[(ins & 0x00F0) >> 4];
           pc += 2;
           break;
-        // 0x8xy4
         case 0x0004:
+          // 0x8xy4
           if ((v[(ins & 0x0F00) >> 8] += v[(ins & 0x00F0) >> 4]) > 0xFF) {
             v[0xF] = 1;
           } else {
@@ -164,8 +159,8 @@ void Chip8::interpretInstruction(const uint16_t ins) {
           }
           pc += 2;
           break;
-        // 0x8xy5
         case 0x0005:
+          // 0x8xy5
           if ((v[(ins & 0x0F00) >> 8] -= v[(ins & 0x00F0) >> 4]) > 0) {
             v[0xF] = 1;
           } else {
@@ -173,9 +168,9 @@ void Chip8::interpretInstruction(const uint16_t ins) {
           }
           pc += 2;
           break;
-        // 0x8xy6
-        case 0x0006: //検討
-          if ((v[(ins & 0x0F00) >> 8] & 0x01) == 1) {
+        case 0x0006:
+          // 0x8xy6
+          if ((v[(ins & 0x0F00) >> 8] & 0x1) == 1) {
             v[0xF] = 1;
           } else {
             v[0xF] = 0;
@@ -183,8 +178,8 @@ void Chip8::interpretInstruction(const uint16_t ins) {
           v[(ins & 0x0F00) >> 8] >>= 1;
           pc += 2;
           break;
-        // 0x8xy7
         case 0x0007:
+          // 0x8xy7
           if (v[(ins & 0x00F0) >> 4] > v[(ins & 0x0F00) >> 8]) {
             v[0xF] = 1;
           } else {
@@ -193,9 +188,9 @@ void Chip8::interpretInstruction(const uint16_t ins) {
           v[(ins & 0x0F00) >> 8] = v[(ins & 0x00F0) >> 4] - v[(ins & 0x0F00) >> 8];
           pc += 2;
           break;
-        // 0x8xyE
         case 0x000E:
-          if (v[(ins & 0x0F00) >> 8] & 0x80 == 1) {
+          // 0x8xyE
+          if (v[(ins & 0x0F00) >> 8] & 0x80 == 0x80) {
             v[0xF] = 1;
           } else {
             v[0xF] = 0;
@@ -204,34 +199,33 @@ void Chip8::interpretInstruction(const uint16_t ins) {
           pc += 2;
           break;
         default:
-          std::cout << "Non-existent instruction: 0x" << std::uppercase << std::hex << ins << std::endl;
+          std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << ins << std::endl;
           exit(1);
       }
       break;
-    // 0x9xy0
     case 0x9000:
+      // 0x9xy0
       if (v[(ins & 0x0F00) >> 8] != v[(ins & 0x00F0) >> 4]) {
         pc += 2;
       }
       pc += 2;
       break;
-    // 0xAnnn
     case 0xA000:
+      // 0xAnnn
       i = ins & 0x0FFF;
       pc += 2;
       break;
-    // 0xBnnn
     case 0xB000:
+      // 0xBnnn
       pc = (ins & 0x0FFF) + v[0];
       break;
-    // 0xCxkk
     case 0xC000:
+      // 0xCxkk
       v[(ins & 0x0F00) >> 8] = (rand() % 256) & (ins & 0x00FF);
       pc += 2;
       break;
-    // 0xDxyn
     case 0xD000: {
-      // 画面描画
+      // 0xDxyn
       uint16_t x = v[(ins & 0x0F00) >> 8] % 64;
       uint16_t y = v[(ins & 0x00F0) >> 4] % 32;
       uint16_t n = ins & 0x000F;
@@ -257,37 +251,34 @@ void Chip8::interpretInstruction(const uint16_t ins) {
       break;
     case 0xE000:
       switch (ins & 0x00FF) {
-        // 0xEx9E
         case 0x009E:
-          // keyboard check
+          // 0xEx9E
           if (key[v[(ins & 0x0F00) >> 8]] == 1) {
             pc += 2;
           }
           pc += 2;
           break;
-        // 0xExA1
         case 0x00A1:
-          //keyboard check
+          // 0xExA1
           if (key[v[(ins & 0x0F00) >> 8]] == 0) {
             pc += 2;
           }
           pc += 2;
           break;
         default:
-          std::cout << "Non-existent instruction: 0x" << std::uppercase << std::hex << ins << std::endl;
+          std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << ins << std::endl;
           exit(1);
       }
       break;
     case 0xF000:
       switch (ins & 0x00FF) {
-        // 0xFx07
         case 0x0007:
+          // 0xFx07
           v[(ins & 0x0F00) >> 8] = dt;
           pc += 2;
           break;
-        // 0xFx0A
         case 0x000A: {
-          // keyboard check
+          // 0xFx0A
           bool keyWasPressed = false;
           for (int i = 0; i < 16; i++) {
             if (key[i] == 1) {
@@ -299,58 +290,60 @@ void Chip8::interpretInstruction(const uint16_t ins) {
             pc += 2;
           }
         } break;
-        // 0xFx15
         case 0x0015:
+          // 0xFx15
           dt = v[(ins & 0x0F00) >> 8];
           pc += 2;
           break;
-        // 0xFx18
         case 0x0018:
+          // 0xFx18
           st = v[(ins & 0x0F00) >> 8];
           pc += 2;
           break;
-        // 0xFx1E
         case 0x001E:
+          // 0xFx1E
+          // Original COSMAC VIP implementation
           i += v[(ins & 0x0F00) >> 8];
           pc += 2;
           break;
-        // 0xFx29
         case 0x0029:
+          // 0xFx29
           i = 5 * v[(ins & 0x0F00) >> 8]; // The first address of the sprites is 0x000
           pc += 2;
           break;
-        // 0xFx33
         case 0x0033:
+          // 0xFx33
           mem[i] = v[(ins & 0x0F00) >> 8] / 100;
-          mem[i+1] = v[(ins & 0x0F00) >> 8] / 10 % 10;
-          mem[i+2] = v[(ins & 0x0F00) >> 8] % 10;
+          mem[i + 1] = v[(ins & 0x0F00) >> 8] / 10 % 10;
+          mem[i + 2] = v[(ins & 0x0F00) >> 8] % 10;
           pc += 2;
           break;
-        // 0xFx55
         case 0x0055: {
+          // 0xFx55
+          // Modern implementation
           int tmp = (ins & 0x0F00) >> 8;
           for (int j = 0; j < tmp; j++) {
-            mem[i+j] = v[j];
+            mem[i + j] = v[j];
           }
           }
           pc += 2;
           break;
-        // 0xFx65
         case 0x0065: {
+          // 0xFx65
           int tmp = (ins & 0x0F00) >> 8;
           for (int j = 0; j < tmp; j++) {
-            v[j] = mem[i+j];
+            v[j] = mem[i + j];
           }
           }
           pc += 2;
           break;
         default:
-          std::cout << "Non-existent instruction: 0x" << std::uppercase << std::hex << ins << std::endl;
+          std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << ins << std::endl;
           exit(1);
       }
       break;
     default:
-      std::cout << "Non-existent instruction: 0x" << std::uppercase << std::hex << ins << std::endl;
+      std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << ins << std::endl;
       exit(1);
   }
 }
@@ -358,9 +351,10 @@ void Chip8::interpretInstruction(const uint16_t ins) {
 void Chip8::runLoop() {
   interpretInstruction(mem[pc] << 8 | mem[pc+1]);
   if (dt > 0) dt--;
-  if (st > 0) st--;
-  if (st) {
-    // beep sound
-    ;
+  if (st > 0) {
+    st--;
+    // sound
   }
 }
+
+Chip8::~Chip8(){}

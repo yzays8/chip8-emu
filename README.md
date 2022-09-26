@@ -6,14 +6,14 @@ Simple CHIP8 emulator using SDL2 as graphic library. Sound system is not impleme
 ## Installation
 ### Linux:
 ```
-sudo apt-get install libsdl2-dev
+$ sudo apt-get install libsdl2-dev
 ```
 
 ## Usage
 Prepare ROM in advance.
 ```
-g++ emu.cpp `sdl2-config --cflags --libs`
-./a.out <ROM>
+$ g++ emu.cpp `sdl2-config --cflags --libs`
+$ ./a.out <ROM>
 ```
 
 ## References

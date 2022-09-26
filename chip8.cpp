@@ -11,7 +11,7 @@ Chip8::Chip8() {
   sp = 0;
   dt = 0;
   st = 0;
-  isDrew = false;
+  isDrawn = false;
   for (int i = 0; i < 16; i++) {
     v[i] = 0;
   }
@@ -76,7 +76,7 @@ void Chip8::interpretInstruction(const uint16_t ins) {
               frameBuf[i][j] = 0;
             }
           }
-          isDrew = true;
+          isDrawn = true;
           pc += 2;
           break;
         case 0x00EE:
@@ -246,7 +246,7 @@ void Chip8::interpretInstruction(const uint16_t ins) {
         }
       }
       }
-      isDrew = true;
+      isDrawn = true;
       pc += 2;
       break;
     case 0xE000:

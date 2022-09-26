@@ -9,7 +9,7 @@ class Chip8 {
   uint8_t mem[4096];
   int frameBuf[32][64];
   bool key[16];
-  bool isDrew;
+  bool isDrawn;
 
   void loadROM(const std::string rom);
   void interpretInstruction(const uint16_t ins);

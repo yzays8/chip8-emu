@@ -146,8 +146,8 @@ int main(int argc, char **argv) {
       }
     }
 
-    if (chip8.isDrew) {
-      chip8.isDrew = false;
+    if (chip8.isDrawn) {
+      chip8.isDrawn = false;
       for (int i = 0; i < 32; i++) {
         for (int j = 0; j < 64; j++) {
           pixel.x = 10 * j;

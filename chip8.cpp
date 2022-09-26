@@ -279,14 +279,14 @@ void Chip8::interpretInstruction(const uint16_t ins) {
           break;
         case 0x000A: {
           // 0xFx0A
-          bool keyWasPressed = false;
+          bool keyIsPressed = false;
           for (int i = 0; i < 16; i++) {
             if (key[i] == 1) {
-              keyWasPressed = true;
+              keyIsPressed = true;
               v[(ins & 0x0F00) >> 8] = key[i];
             }
           }
-          if (keyWasPressed) {
+          if (keyIsPressed) {
             pc += 2;
           }
         } break;

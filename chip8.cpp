@@ -80,7 +80,7 @@ void Chip8::interpretInstruction(const uint16_t ins) {
           pc += 2;
           break;
         case 0x00EE:
-          pc = stack[--sp];
+          pc = stack[--sp]; // pop
           pc += 2;
           break;
         default:
@@ -93,7 +93,7 @@ void Chip8::interpretInstruction(const uint16_t ins) {
       pc = ins & 0x0FFF;
       break;
     case 0x2000:
-      // 0x2nnn
+      // 0x2nnn, push
       stack[sp++] = pc;
       pc = ins & 0x0FFF;
       break;

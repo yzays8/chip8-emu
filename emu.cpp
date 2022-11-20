@@ -164,6 +164,6 @@ int main(int argc, char **argv) {
       SDL_RenderPresent(renderer);  // This function should not be placed in the loop
     }
 
-    usleep(300); // Can change game speed
+    usleep(1200); // Can change game speed
   }
 }

@@ -1,7 +1,7 @@
 # chip8-emu
 
 ## About
-Simple CHIP8 emulator using SDL2 as graphic library. Sound system is not implemented and timers are not decremented at 60Hz.
+Simple CHIP8 emulator using SDL2 as graphic library. Timers are not decremented at 60Hz.
 
 ## Installation
 ### Linux:
@@ -12,8 +12,8 @@ $ sudo apt-get install libsdl2-dev
 ## Usage
 Prepare ROM in advance.
 ```
-$ g++ emu.cpp `sdl2-config --cflags --libs`
-$ ./a.out <ROM>
+$ make
+$ ./emu <ROM>
 ```
 
 ## References

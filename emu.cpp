@@ -1,16 +1,17 @@
 #include <iostream>
 #include <unistd.h>
 #include <SDL2/SDL.h>
-#include "chip8.cpp"
+
+#include "chip8.hpp"
 
 int main(int argc, char **argv) {
   if (argc != 2) {
     std::cout << "Arguments error!" << std::endl;
-    return -1;
+    return 1;
   }
 
   Chip8 chip8;
-  chip8.loadROM(argv[1]);
+  chip8.LoadROM(argv[1]);
 
   SDL_Init(SDL_INIT_VIDEO);
   SDL_Window *window;
@@ -28,7 +29,7 @@ int main(int argc, char **argv) {
   };
 
   for (;;) {
-    chip8.runLoop();
+    chip8.RunLoop();
 
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -146,13 +147,13 @@ int main(int argc, char **argv) {
       }
     }
 
-    if (chip8.isDrawn) {
-      chip8.isDrawn = false;
-      for (int i = 0; i < 32; i++) {
-        for (int j = 0; j < 64; j++) {
+    if (chip8.drawable) {
+      chip8.drawable = false;
+      for (int i = 0; i < 32; ++i) {
+        for (int j = 0; j < 64; ++j) {
           pixel.x = 10 * j;
           pixel.y = 10 * i;
-          if (chip8.frameBuf[i][j] == 1) {
+          if (chip8.frameBuffer[i][j] == 1) {
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
           } else {
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -163,6 +164,6 @@ int main(int argc, char **argv) {
       SDL_RenderPresent(renderer);  // This function should not be placed in the loop
     }
 
-    usleep(1200); // Can change game speed
+    usleep(300); // Can change game speed
   }
 }

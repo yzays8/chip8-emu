@@ -4,6 +4,8 @@
 
 #include "chip8.hpp"
 
+const int window_scale = 15;  // change window size
+
 int main(int argc, char **argv) {
   if (argc != 2) {
     std::cout << "Arguments error!" << std::endl;
@@ -16,21 +18,19 @@ int main(int argc, char **argv) {
   SDL_Init(SDL_INIT_VIDEO);
   SDL_Window *window;
   SDL_Renderer *renderer;
-  SDL_CreateWindowAndRenderer(640, 320, 0, &window, &renderer);
-  SDL_SetWindowTitle(window, "CHIP8-EMULATOR");
+  SDL_CreateWindowAndRenderer(64 * window_scale, 32 * window_scale, 0, &window, &renderer);
+  SDL_SetWindowTitle(window, "Chip-8 Emulator");
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
   SDL_RenderPresent(renderer);
   SDL_Rect pixel {
     0,  // x (temporary)
     0,  // y (temporary)
-    10, // width
-    10, // height
+    window_scale, // width
+    window_scale, // height
   };
 
   for (;;) {
-    chip8.RunLoop();
-
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
       switch (event.type) {
@@ -90,6 +90,11 @@ int main(int argc, char **argv) {
             case SDLK_v:
               chip8.key[0xF] = 1;
               break;
+            case SDLK_9:
+              chip8.sleep = true;
+              break;
+            case SDLK_0:
+              chip8.sleep = false;
           }
           break;
         case SDL_KEYUP:
@@ -147,23 +152,26 @@ int main(int argc, char **argv) {
       }
     }
 
-    if (chip8.drawable) {
-      chip8.drawable = false;
-      for (int i = 0; i < 32; ++i) {
-        for (int j = 0; j < 64; ++j) {
-          pixel.x = 10 * j;
-          pixel.y = 10 * i;
-          if (chip8.frameBuffer[i][j] == 1) {
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-          } else {
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    if (!chip8.sleep) {
+      chip8.RunLoop();
+
+      if (chip8.drawable) {
+        chip8.drawable = false;
+        for (int i = 0; i < 32; ++i) {
+          for (int j = 0; j < 64; ++j) {
+            pixel.x = window_scale * j;
+            pixel.y = window_scale * i;
+            if (chip8.frame_buffer[i][j] == 1) {
+              SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            } else {
+              SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            }
+            SDL_RenderFillRect(renderer, &pixel);
           }
-          SDL_RenderFillRect(renderer, &pixel);
         }
+        SDL_RenderPresent(renderer);  // This function should not be placed in the loop
       }
-      SDL_RenderPresent(renderer);  // This function should not be placed in the loop
     }
 
-    usleep(1200); // Can change game speed
   }
 }

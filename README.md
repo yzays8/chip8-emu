@@ -2,6 +2,7 @@
 
 ## About
 Simple CHIP8 emulator using SDL2 as graphic library. Timers are not decremented at 60Hz.
+As an additional feature, you can press "9" key to enter the sleep mode and press "0" key to exit.
 
 ## Installation
 ### Linux:

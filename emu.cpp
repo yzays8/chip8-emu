@@ -1,6 +1,4 @@
 #include <iostream>
-#include <unistd.h>
-#include <SDL2/SDL.h>
 
 #include "chip8.hpp"
 
@@ -8,170 +6,13 @@ const int window_scale = 15;  // change window size
 
 int main(int argc, char **argv) {
   if (argc != 2) {
-    std::cout << "Arguments error!" << std::endl;
-    return 1;
+    std::cerr << "Arguments error" << std::endl;
+    return EXIT_FAILURE;
   }
 
   Chip8 chip8;
+
   chip8.LoadROM(argv[1]);
-
-  SDL_Init(SDL_INIT_VIDEO);
-  SDL_Window *window;
-  SDL_Renderer *renderer;
-  SDL_CreateWindowAndRenderer(64 * window_scale, 32 * window_scale, 0, &window, &renderer);
-  SDL_SetWindowTitle(window, "Chip-8 Emulator");
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-  SDL_RenderClear(renderer);
-  SDL_RenderPresent(renderer);
-  SDL_Rect pixel {
-    0,  // x (temporary)
-    0,  // y (temporary)
-    window_scale, // width
-    window_scale, // height
-  };
-
-  for (;;) {
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-      switch (event.type) {
-        case SDL_QUIT:
-          std::cout << "Shutdown..." << std::endl;
-          SDL_DestroyRenderer(renderer);
-          SDL_DestroyWindow(window);
-          SDL_Quit();
-          return 0;
-        case SDL_KEYDOWN:
-          switch (event.key.keysym.sym) {
-            case SDLK_1:
-              chip8.key[0x1] = 1;
-              break;
-            case SDLK_2:
-              chip8.key[0x2] = 1;
-              break;
-            case SDLK_3:
-              chip8.key[0x3] = 1;
-              break;
-            case SDLK_4:
-              chip8.key[0xC] = 1;
-              break;
-            case SDLK_q:
-              chip8.key[0x4] = 1;
-              break;
-            case SDLK_w:
-              chip8.key[0x5] = 1;
-              break;
-            case SDLK_e:
-              chip8.key[0x6] = 1;
-              break;
-            case SDLK_r:
-              chip8.key[0xD] = 1;
-              break;
-            case SDLK_a:
-              chip8.key[0x7] = 1;
-              break;
-            case SDLK_s:
-              chip8.key[0x8] = 1;
-              break;
-            case SDLK_d:
-              chip8.key[0x9] = 1;
-              break;
-            case SDLK_f:
-              chip8.key[0xE] = 1;
-              break;
-            case SDLK_z:
-              chip8.key[0xA] = 1;
-              break;
-            case SDLK_x:
-              chip8.key[0x0] = 1;
-              break;
-            case SDLK_c:
-              chip8.key[0xB] = 1;
-              break;
-            case SDLK_v:
-              chip8.key[0xF] = 1;
-              break;
-            case SDLK_9:
-              chip8.sleep = true;
-              break;
-            case SDLK_0:
-              chip8.sleep = false;
-          }
-          break;
-        case SDL_KEYUP:
-          switch (event.key.keysym.sym) {
-            case SDLK_1:
-              chip8.key[0x1] = 0;
-              break;
-            case SDLK_2:
-              chip8.key[0x2] = 0;
-              break;
-            case SDLK_3:
-              chip8.key[0x3] = 0;
-              break;
-            case SDLK_4:
-              chip8.key[0xC] = 0;
-              break;
-            case SDLK_q:
-              chip8.key[0x4] = 0;
-              break;
-            case SDLK_w:
-              chip8.key[0x5] = 0;
-              break;
-            case SDLK_e:
-              chip8.key[0x6] = 0;
-              break;
-            case SDLK_r:
-              chip8.key[0xD] = 0;
-              break;
-            case SDLK_a:
-              chip8.key[0x7] = 0;
-              break;
-            case SDLK_s:
-              chip8.key[0x8] = 0;
-              break;
-            case SDLK_d:
-              chip8.key[0x9] = 0;
-              break;
-            case SDLK_f:
-              chip8.key[0xE] = 0;
-              break;
-            case SDLK_z:
-              chip8.key[0xA] = 0;
-              break;
-            case SDLK_x:
-              chip8.key[0x0] = 0;
-              break;
-            case SDLK_c:
-              chip8.key[0xB] = 0;
-              break;
-            case SDLK_v:
-              chip8.key[0xF] = 0;
-              break;
-          }
-          break;
-      }
-    }
-
-    if (!chip8.sleep) {
-      chip8.RunLoop();
-
-      if (chip8.drawable) {
-        chip8.drawable = false;
-        for (int i = 0; i < 32; ++i) {
-          for (int j = 0; j < 64; ++j) {
-            pixel.x = window_scale * j;
-            pixel.y = window_scale * i;
-            if (chip8.frame_buffer[i][j] == 1) {
-              SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-            } else {
-              SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-            }
-            SDL_RenderFillRect(renderer, &pixel);
-          }
-        }
-        SDL_RenderPresent(renderer);  // This function should not be placed in the loop
-      }
-    }
-
-  }
+  chip8.InitializeWindow(window_scale);
+  chip8.RunLoop();
 }

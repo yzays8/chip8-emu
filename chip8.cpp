@@ -2,6 +2,7 @@
 #include <ctime>
 #include <cstdlib>
 #include <fstream>
+#include <algorithm>
 #include <SDL2/SDL.h>
 
 #include "chip8.hpp"
@@ -10,7 +11,7 @@ Chip8::Chip8()
     : mem_{}, stack_{}, v_{}, i_{0}, pc_{0x200}, sp_{0}, dt_{0}, st_{0}, main_clock_ticks_{0},
       frame_buffer_{}, key_{}, drawable_{false}, sleep_{false}, window_{}, renderer_{}, window_scale_{15},
       pixel_{} {
-  memcpy(mem_, kSprites, 80);
+  std::copy(kSprites, kSprites + 80, mem_.begin());
   srand((unsigned)time(NULL));
 }
 
@@ -218,11 +219,12 @@ void Chip8::RunLoop() {
 }
 
 void Chip8::Debug(const uint16_t inst) {
-  printf("Instruction tracking: pc=%X, inst=0x%04X, i=%X, sp=%X\n", pc_, inst, i_, sp_);
+  printf("Debug Mode: pc=0x%X, inst=0x%04X, i=0x%X, sp=0x%X, dt=0x%X, st=0x%X\n"
+  , pc_, inst, i_, sp_, dt_, st_);
 }
 
 void Chip8::InterpretInstruction(const uint16_t inst) {
-  //Debug(inst);
+  // Debug(inst);
   switch (inst & 0xF000) {
     case 0x0000:
       switch (inst) {
@@ -431,14 +433,14 @@ void Chip8::InterpretInstruction(const uint16_t inst) {
           break;
         case 0x000A: {
           // 0xFx0A
-          bool keyIsPressed = false;
+          bool key_is_pressed = false;
           for (int i = 0; i < 16; ++i) {
             if (key_[i] == 1) {
-              keyIsPressed = true;
+              key_is_pressed = true;
               v_[(inst & 0x0F00) >> 8] = key_[i];
             }
           }
-          if (keyIsPressed) {
+          if (key_is_pressed) {
             pc_ += 2;
           }
           }

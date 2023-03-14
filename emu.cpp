@@ -1,18 +1,19 @@
 #include <iostream>
+#include <memory>
 
 #include "chip8.hpp"
 
-const int window_scale = 15;  // change window size
+const int kWindowScale = 15;  // change window size
 
 int main(int argc, char **argv) {
   if (argc != 2) {
     std::cerr << "Arguments error" << std::endl;
-    return EXIT_FAILURE;
+    return 1;
   }
 
-  Chip8 chip8;
+  auto chip8 = std::make_unique<Chip8>();
 
-  chip8.LoadROM(argv[1]);
-  chip8.InitializeWindow(window_scale);
-  chip8.RunLoop();
+  chip8->LoadROM(argv[1]);
+  chip8->InitializeWindow(kWindowScale);
+  chip8->RunLoop();
 }

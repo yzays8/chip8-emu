@@ -1,5 +1,4 @@
-#ifndef CHIP8_H_
-#define CHIP8_H_
+#pragma once
 
 #include <cstdint>
 #include <array>
@@ -29,17 +28,18 @@ class Chip8 {
   Chip8();
   void LoadROM(const std::string rom);
   void InitializeWindow(const int window_scale);
+  void RunLoop();
+
+ private:
   void ProcessInput();
   void Tick();
   void Render();
-  void RunLoop();
   void InterpretInstruction(const uint16_t inst);
   void Debug(const uint16_t inst);
 
- private:
-  uint8_t mem_[4096];
-  uint16_t stack_[16];
-  uint8_t v_[16];
+  std::array<uint8_t, 4096> mem_;
+  std::array<uint16_t, 16> stack_;
+  std::array<uint8_t, 16> v_;
   uint16_t i_;
   uint16_t pc_;
   uint8_t sp_;
@@ -48,7 +48,7 @@ class Chip8 {
 
   Uint32 main_clock_ticks_;
   std::array<std::array<int, 64>, 32> frame_buffer_;
-  bool key_[16];
+  std::array<bool, 16> key_;
   bool drawable_;
   bool sleep_;
 
@@ -57,5 +57,3 @@ class Chip8 {
   int window_scale_;
   SDL_Rect pixel_;
 };
-
-#endif

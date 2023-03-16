@@ -47,7 +47,7 @@ class Chip8 {
   uint8_t st_;
 
   Uint32 main_clock_ticks_;
-  std::array<std::array<int, 64>, 32> frame_buffer_;
+  std::array<std::array<bool, 64>, 32> frame_buffer_;
   std::array<bool, 16> key_;
   bool drawable_;
   bool sleep_;

@@ -217,8 +217,8 @@ void Chip8::RunLoop() {
 }
 
 void Chip8::Debug(const uint16_t inst) {
-  printf("Debug Mode: pc=0x%X, inst=0x%04X, i=0x%X, sp=0x%X, dt=0x%X, st=0x%X\n"
-  , pc_, inst, i_, sp_, dt_, st_);
+  printf("Debug: pc=0x%04X, inst=0x%04X, i=0x%04X, sp=0x%02X, dt=0x%02X, st=0x%02X\n"
+    , pc_, inst, i_, sp_, dt_, st_);
 }
 
 void Chip8::InterpretInstruction(const uint16_t inst) {

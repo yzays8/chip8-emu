@@ -176,8 +176,6 @@ void Chip8::ProcessInput() {
 }
 
 void Chip8::Tick() {
-  while (!SDL_TICKS_PASSED(SDL_GetTicks(), main_clock_ticks_ + 2));  // 500Hz
-
   uint16_t inst = mem_[pc_] << 8 | mem_[pc_ + 1];
   InterpretInstruction(inst);
   if (dt_ > 0) --dt_;
@@ -185,8 +183,6 @@ void Chip8::Tick() {
     printf("\a"); // sound
     --st_;
   }
-
-  main_clock_ticks_ = SDL_GetTicks();
 }
 
 void Chip8::Render() {
@@ -208,6 +204,7 @@ void Chip8::Render() {
 
 void Chip8::RunLoop() {
   for (;;) {
+    main_clock_ticks_ = SDL_GetTicks();
     ProcessInput();
     if (!sleep_) {
       Tick();
@@ -215,6 +212,7 @@ void Chip8::RunLoop() {
         Render();
       }
     }
+    while (!SDL_TICKS_PASSED(SDL_GetTicks(), main_clock_ticks_ + 2)); // 500Hz
   }
 }
 

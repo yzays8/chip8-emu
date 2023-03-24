@@ -1,7 +1,7 @@
 *.txt
 *.py
 *.jpg
-src/*.0
+src/*.o
 src/emu
 roms/
 logs/

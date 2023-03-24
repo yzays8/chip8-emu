@@ -2,26 +2,16 @@
 
 #include <cstdint>
 #include <array>
-#include <SDL2/SDL.h>
+#include <memory>
+#include <atomic>
+#include <random>
 
-const uint8_t kSprites[80] = {
-  0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
-  0x20, 0x60, 0x20, 0x20, 0x70, // 1
-  0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
-  0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
-  0x90, 0x90, 0xF0, 0x10, 0x10, // 4
-  0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
-  0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
-  0xF0, 0x10, 0x20, 0x40, 0x40, // 7
-  0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
-  0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
-  0xF0, 0x90, 0xF0, 0x90, 0x90, // A
-  0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
-  0xF0, 0x80, 0x80, 0x80, 0xF0, // C
-  0xE0, 0x90, 0x90, 0x90, 0xE0, // D
-  0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
-  0xF0, 0x80, 0xF0, 0x80, 0x80, // F
-};
+#include "graphic.hpp"
+#include "timer.hpp"
+#include "sound.hpp"
+#include "input.hpp"
+
+constexpr int kMainCycles = 500;  // 500 Hz
 
 class Chip8 {
  public:
@@ -31,11 +21,13 @@ class Chip8 {
   void RunLoop();
 
  private:
-  void ProcessInput();
+  void InitializeSound();
+  void StartTimers();
   void Tick();
-  void Render();
   void InterpretInstruction(const uint16_t inst);
   void Debug(const uint16_t inst);
+  void Shutdown();
+  void ExitByError();
 
   std::array<uint8_t, 4096> mem_;
   std::array<uint16_t, 16> stack_;
@@ -46,14 +38,16 @@ class Chip8 {
   uint8_t dt_;
   uint8_t st_;
 
-  Uint32 main_clock_ticks_;
-  std::array<std::array<bool, 64>, 32> frame_buffer_;
-  std::array<bool, 16> key_;
-  bool drawable_;
-  bool sleep_;
+  std::shared_ptr<Graphic> graphic_;
+  std::shared_ptr<Sound> sound_;
+  std::unique_ptr<Timer> delay_timer_, sound_timer_;
+  std::unique_ptr<Input> input_;
 
-  SDL_Window *window_;
-  SDL_Renderer *renderer_;
-  int window_scale_;
-  SDL_Rect pixel_;
+  bool drawable_;
+  std::atomic_bool is_sleeping_;
+  bool is_running_;
+
+  std::random_device rd_;
+  std::mt19937 gen_;
+  std::uniform_int_distribution<> dis_;
 };

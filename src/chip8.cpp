@@ -1,24 +1,33 @@
 #include <iostream>
-#include <ctime>
-#include <cstdlib>
 #include <fstream>
 #include <algorithm>
+#include <thread>
+#include <memory>
+#include <chrono>
+#include <random>
 #include <SDL2/SDL.h>
 
 #include "chip8.hpp"
+#include "graphic.hpp"
+#include "delay_timer.hpp"
+#include "sound_timer.hpp"
 
 Chip8::Chip8()
-    : mem_{}, stack_{}, v_{}, i_{0}, pc_{0x200}, sp_{0}, dt_{0}, st_{0}, main_clock_ticks_{0},
-      frame_buffer_{}, key_{}, drawable_{false}, sleep_{false}, window_{}, renderer_{}, window_scale_{15},
-      pixel_{} {
+    : mem_{}, stack_{}, v_{}, i_{0}, pc_{0x200}, sp_{0}, dt_{0}, st_{0},
+      drawable_{false}, is_sleeping_{false}, is_running_{false}, gen_{rd_()},
+      dis_{0, 255} {
+  graphic_ = std::make_shared<Graphic>();
+  sound_ = std::make_shared<Sound>();
+  delay_timer_ = std::make_unique<DelayTimer>(dt_, is_sleeping_);
+  sound_timer_ = std::make_unique<SoundTimer>(st_, sound_, is_sleeping_);
+  input_ = std::make_unique<Input>(graphic_);
   std::copy(kSprites, kSprites + 80, mem_.begin());
-  srand((unsigned)time(NULL));
 }
 
 void Chip8::LoadROM(const std::string rom) {
   std::ifstream ifs(rom, std::ios::binary | std::ios::in);
   if (!ifs.is_open()) {
-    std::cerr << "Cannot open ROM" << std::endl;
+    std::cerr << "Failed to open ROM" << std::endl;
     std::exit(EXIT_FAILURE);
   }
   char data;
@@ -29,196 +38,66 @@ void Chip8::LoadROM(const std::string rom) {
 }
 
 void Chip8::InitializeWindow(const int window_scale) {
-  window_scale_ = window_scale;
-  if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-    std::cerr << "Cannot initialize SDL" << std::endl;
-    std::exit(EXIT_FAILURE);
-  }
-  if (SDL_CreateWindowAndRenderer(64 * window_scale_, 32 * window_scale_, 0, &window_, &renderer_) != 0) {
-    std::cerr << "Cannot create window and renderer" << std::endl;
-    std::exit(EXIT_FAILURE);
-  }
-  SDL_SetWindowTitle(window_, "Chip-8 Emulator");
-  SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
-  SDL_RenderClear(renderer_);
-  SDL_RenderPresent(renderer_);
-  pixel_ = {
-    0,              // x (temporary)
-    0,              // y (temporary)
-    window_scale_,  // width
-    window_scale_,  // height
-  };
-
-  std::cout << "Initialized window" << std::endl;
+  graphic_->InitializeWindow(window_scale);
 }
 
-void Chip8::ProcessInput() {
-  SDL_Event event;
-  while (SDL_PollEvent(&event)) {
-    switch (event.type) {
-      case SDL_QUIT:
-        std::cout << "Shutdown..." << std::endl;
-        SDL_DestroyRenderer(renderer_);
-        SDL_DestroyWindow(window_);
-        SDL_Quit();
-        std::exit(EXIT_SUCCESS);
-      case SDL_KEYDOWN:
-        switch (event.key.keysym.sym) {
-          case SDLK_1:
-            key_[0x1] = 1;
-            break;
-          case SDLK_2:
-            key_[0x2] = 1;
-            break;
-          case SDLK_3:
-            key_[0x3] = 1;
-            break;
-          case SDLK_4:
-            key_[0xC] = 1;
-            break;
-          case SDLK_q:
-            key_[0x4] = 1;
-            break;
-          case SDLK_w:
-            key_[0x5] = 1;
-            break;
-          case SDLK_e:
-            key_[0x6] = 1;
-            break;
-          case SDLK_r:
-            key_[0xD] = 1;
-            break;
-          case SDLK_a:
-            key_[0x7] = 1;
-            break;
-          case SDLK_s:
-            key_[0x8] = 1;
-            break;
-          case SDLK_d:
-            key_[0x9] = 1;
-            break;
-          case SDLK_f:
-            key_[0xE] = 1;
-            break;
-          case SDLK_z:
-            key_[0xA] = 1;
-            break;
-          case SDLK_x:
-            key_[0x0] = 1;
-            break;
-          case SDLK_c:
-            key_[0xB] = 1;
-            break;
-          case SDLK_v:
-            key_[0xF] = 1;
-            break;
-          case SDLK_9:
-            sleep_ = true;
-            break;
-          case SDLK_0:
-            sleep_ = false;
-        }
-        break;
-      case SDL_KEYUP:
-        switch (event.key.keysym.sym) {
-          case SDLK_1:
-            key_[0x1] = 0;
-            break;
-          case SDLK_2:
-            key_[0x2] = 0;
-            break;
-          case SDLK_3:
-            key_[0x3] = 0;
-            break;
-          case SDLK_4:
-            key_[0xC] = 0;
-            break;
-          case SDLK_q:
-            key_[0x4] = 0;
-            break;
-          case SDLK_w:
-            key_[0x5] = 0;
-            break;
-          case SDLK_e:
-            key_[0x6] = 0;
-            break;
-          case SDLK_r:
-            key_[0xD] = 0;
-            break;
-          case SDLK_a:
-            key_[0x7] = 0;
-            break;
-          case SDLK_s:
-            key_[0x8] = 0;
-            break;
-          case SDLK_d:
-            key_[0x9] = 0;
-            break;
-          case SDLK_f:
-            key_[0xE] = 0;
-            break;
-          case SDLK_z:
-            key_[0xA] = 0;
-            break;
-          case SDLK_x:
-            key_[0x0] = 0;
-            break;
-          case SDLK_c:
-            key_[0xB] = 0;
-            break;
-          case SDLK_v:
-            key_[0xF] = 0;
-            break;
-        }
-        break;
-    }
-  }
+void Chip8::InitializeSound() {
+  sound_->InitializeSound();
+  sound_->OpenAudioFile(kBeepFilePath);
+}
+
+void Chip8::StartTimers() {
+  delay_timer_->Start();
+  sound_timer_->Start();
+}
+
+void Chip8::Shutdown() {
+  std::cout << "Shutdown..." << std::endl;
+  drawable_ = false;
+  is_sleeping_ = true;
+  is_running_ = false;
+}
+
+void Chip8::ExitByError() {
+  sound_->Terminate();
+  sound_timer_->Terminate();
+  delay_timer_->Terminate();
+  graphic_->Terminate();
+  std::exit(EXIT_FAILURE);
 }
 
 void Chip8::Tick() {
   uint16_t inst = mem_[pc_] << 8 | mem_[pc_ + 1];
   InterpretInstruction(inst);
-  if (dt_ > 0) --dt_;
-  if (st_ > 0) {
-    printf("\a"); // sound
-    --st_;
-  }
-}
-
-void Chip8::Render() {
-  drawable_ = false;
-  for (int i = 0; i < 32; ++i) {
-    for (int j = 0; j < 64; ++j) {
-      pixel_.x = window_scale_ * j;
-      pixel_.y = window_scale_ * i;
-      if (frame_buffer_[i][j] == 1) {
-        SDL_SetRenderDrawColor(renderer_, 0, 255, 255, 255);  // cyan
-      } else {
-        SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);      // black
-      }
-      SDL_RenderFillRect(renderer_, &pixel_);
-    }
-  }
-  SDL_RenderPresent(renderer_);   // This function should not be placed in the loop
 }
 
 void Chip8::RunLoop() {
-  for (;;) {
-    main_clock_ticks_ = SDL_GetTicks();
-    ProcessInput();
-    if (!sleep_) {
+  const auto interval = std::chrono::duration<int, std::ratio<1, kMainCycles>>(1);  // 1/kMainCycles s
+  MessageType msg;
+
+  InitializeSound();
+  StartTimers();
+  is_running_ = true;
+  while (is_running_) {
+    auto start_time = std::chrono::high_resolution_clock::now();
+    msg = input_->ProcessInput(is_sleeping_);
+    if (msg == MSG_SHUTDOWN) {
+      Shutdown();
+    }
+    if (!is_sleeping_) {
       Tick();
       if (drawable_) {
-        Render();
+        drawable_ = false;
+        graphic_->Render();
       }
     }
-    while (!SDL_TICKS_PASSED(SDL_GetTicks(), main_clock_ticks_ + 2)); // 500Hz
+    std::this_thread::sleep_until(start_time + interval);
   }
 }
 
 void Chip8::Debug(const uint16_t inst) {
-  printf("Debug: pc=0x%04X, inst=0x%04X, i=0x%04X, sp=0x%02X, dt=0x%02X, st=0x%02X\n"
-    , pc_, inst, i_, sp_, dt_, st_);
+  printf("Debug: pc=0x%04X, inst=0x%04X, i=0x%04X, sp=0x%02X, dt=0x%02X, st=0x%02X\n",
+    pc_, inst, i_, sp_, delay_timer_->GetRegisterValue(), sound_timer_->GetRegisterValue());
 }
 
 void Chip8::InterpretInstruction(const uint16_t inst) {
@@ -227,7 +106,7 @@ void Chip8::InterpretInstruction(const uint16_t inst) {
     case 0x0000:
       switch (inst) {
         case 0x00E0:
-          frame_buffer_.fill({}); // 0-fill
+          graphic_->GetBuffer().fill({}); // 0-fill
           drawable_ = true;
           pc_ += 2;
           break;
@@ -238,7 +117,7 @@ void Chip8::InterpretInstruction(const uint16_t inst) {
           break;
         default:
           std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << inst << std::endl;
-          std::exit(EXIT_FAILURE);
+          ExitByError();
       }
       break;
     case 0x1000:
@@ -353,7 +232,7 @@ void Chip8::InterpretInstruction(const uint16_t inst) {
           break;
         default:
           std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << inst << std::endl;
-          std::exit(EXIT_FAILURE);
+          ExitByError();
       }
       break;
     case 0x9000:
@@ -374,68 +253,70 @@ void Chip8::InterpretInstruction(const uint16_t inst) {
       break;
     case 0xC000:
       // 0xCxkk
-      v_[(inst & 0x0F00) >> 8] = (rand() % 256) & (inst & 0x00FF);
+      v_[(inst & 0x0F00) >> 8] = dis_(gen_) & (inst & 0x00FF);
       pc_ += 2;
       break;
-    case 0xD000: {
+    case 0xD000:
       // 0xDxyn
-      uint16_t x = v_[(inst & 0x0F00) >> 8] % 64;
-      uint16_t y = v_[(inst & 0x00F0) >> 4] % 32;
-      const uint16_t n = inst & 0x000F;
+      {
+        uint16_t x = v_[(inst & 0x0F00) >> 8] % 64;
+        uint16_t y = v_[(inst & 0x00F0) >> 4] % 32;
+        const uint16_t n = inst & 0x000F;
+        auto& frame_buffer = graphic_->GetBuffer();
 
-      v_[0xF] = 0;
-      for (int h = 0; h < n; ++h) {
-        uint8_t sprite = mem_[i_ + h];
-        for (int w = 0; w < 8; ++w) {
-          if (x + w >= 64 || y + h >= 32) break;
-          if ((sprite & (0x80 >> w)) != 0) {
-            if (frame_buffer_[y + h][x + w] == 1) {
-              v_[0xF]= 1;
+        v_[0xF] = 0;
+        for (uint16_t h = 0; h < n; ++h) {
+          uint8_t sprite = mem_[i_ + h];
+          for (uint16_t w = 0; w < 8; ++w) {
+            if (x + w >= 64 || y + h >= 32) break;
+            if ((sprite & (0x80 >> w)) != 0) {
+              if (frame_buffer[y + h][x + w] == 1) {
+                v_[0xF]= 1;
+              }
+              frame_buffer[y + h][x + w] ^= 1;
             }
-            frame_buffer_[y + h][x + w] ^= 1;
           }
         }
-      }
 
-      drawable_ = true;
-      pc_ += 2;
+        drawable_ = true;
+        pc_ += 2;
       }
       break;
     case 0xE000:
       switch (inst & 0x00FF) {
         case 0x009E:
           // 0xEx9E
-          if (key_[v_[(inst & 0x0F00) >> 8]] == 1) {
+          if (input_->GetKey(v_[(inst & 0x0F00) >> 8]) == 1) {
             pc_ += 2;
           }
           pc_ += 2;
           break;
         case 0x00A1:
           // 0xExA1
-          if (key_[v_[(inst & 0x0F00) >> 8]] == 0) {
+          if (input_->GetKey(v_[(inst & 0x0F00) >> 8]) == 0) {
             pc_ += 2;
           }
           pc_ += 2;
           break;
         default:
           std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << inst << std::endl;
-          std::exit(EXIT_FAILURE);
+          ExitByError();
       }
       break;
     case 0xF000:
       switch (inst & 0x00FF) {
         case 0x0007:
           // 0xFx07
-          v_[(inst & 0x0F00) >> 8] = dt_;
+          v_[(inst & 0x0F00) >> 8] = delay_timer_->GetRegisterValue();
           pc_ += 2;
           break;
         case 0x000A: {
           // 0xFx0A
           bool key_is_pressed = false;
           for (int i = 0; i < 16; ++i) {
-            if (key_[i] == 1) {
+            if (input_->GetKey(i) == 1) {
               key_is_pressed = true;
-              v_[(inst & 0x0F00) >> 8] = key_[i];
+              v_[(inst & 0x0F00) >> 8] = input_->GetKey(i);
             }
           }
           if (key_is_pressed) {
@@ -445,12 +326,12 @@ void Chip8::InterpretInstruction(const uint16_t inst) {
           break;
         case 0x0015:
           // 0xFx15
-          dt_ = v_[(inst & 0x0F00) >> 8];
+          delay_timer_->SetRegisterValue(v_[(inst & 0x0F00) >> 8]);
           pc_ += 2;
           break;
         case 0x0018:
           // 0xFx18
-          st_ = v_[(inst & 0x0F00) >> 8];
+          sound_timer_->SetRegisterValue(v_[(inst & 0x0F00) >> 8]);
           pc_ += 2;
           break;
         case 0x001E:
@@ -475,34 +356,36 @@ void Chip8::InterpretInstruction(const uint16_t inst) {
           mem_[i_ + 2] = v_[(inst & 0x0F00) >> 8] % 10;
           pc_ += 2;
           break;
-        case 0x0055: {
+        case 0x0055:
           // 0xFx55
           // Original COSMAC VIP implementation for old ROMs
-          const uint16_t tmp = (inst & 0x0F00) >> 8;
-          for (uint16_t i = 0; i <= tmp; ++i) {   // Forgetting the equal sign causes tons of weird behavior
-            mem_[i_ + i] = v_[i];
-          }
-          i_ += tmp + 1;
-          pc_ += 2;
+          {
+            const uint16_t tmp = (inst & 0x0F00) >> 8;
+            for (uint16_t i = 0; i <= tmp; ++i) {   // Forgetting the equal sign causes tons of weird behavior
+              mem_[i_ + i] = v_[i];
+            }
+            i_ += tmp + 1;
+            pc_ += 2;
           }
           break;
-        case 0x0065: {
+        case 0x0065:
           // 0xFx65
-          const uint16_t tmp = (inst & 0x0F00) >> 8;
-          for (uint16_t i = 0; i <= tmp; ++i) {   // Forgetting the equal sign causes tons of weird behavior
-            v_[i] = mem_[i_ + i];
-          }
-          i_ += tmp + 1;
-          pc_ += 2;
+          {
+            const uint16_t tmp = (inst & 0x0F00) >> 8;
+            for (uint16_t i = 0; i <= tmp; ++i) {   // Forgetting the equal sign causes tons of weird behavior
+              v_[i] = mem_[i_ + i];
+            }
+            i_ += tmp + 1;
+            pc_ += 2;
           }
           break;
         default:
           std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << inst << std::endl;
-          std::exit(EXIT_FAILURE);
+          ExitByError();
       }
       break;
     default:
       std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << inst << std::endl;
-      std::exit(EXIT_FAILURE);
+      ExitByError();
   }
 }

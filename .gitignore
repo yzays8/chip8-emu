@@ -1,5 +1,7 @@
 *.txt
-*.o
-emu
+*.py
+*.jpg
+src/*.0
+src/emu
 roms/
 logs/

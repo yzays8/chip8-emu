@@ -5,7 +5,7 @@
 
 const int kWindowScale = 15;  // change window size
 
-int main(int argc, char **argv) {
+int main(int argc, char* argv[]) {
   if (argc != 2) {
     std::cerr << "Arguments error" << std::endl;
     return 1;

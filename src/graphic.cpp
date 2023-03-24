@@ -49,9 +49,9 @@ void Graphic::Render() {
   SDL_SetRenderDrawColor(renderer_, obj_rgb_[R], obj_rgb_[G], obj_rgb_[B], 255);
   for (int i = 0; i < 32; ++i) {
     for (int j = 0; j < 64; ++j) {
-      pixel_.x = window_scale_ * j;
-      pixel_.y = window_scale_ * i;
       if (frame_buffer_[i][j] == 1) {
+        pixel_.x = window_scale_ * j;
+        pixel_.y = window_scale_ * i;
         SDL_RenderFillRect(renderer_, &pixel_);
       }
     }

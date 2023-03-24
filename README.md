@@ -1,21 +1,53 @@
 # chip8-emu
 
 ## About
-Simple Chip-8 emulator using SDL2 as a graphic library. NOTE: Timers are not decremented at 60Hz.
-As an additional feature, you can press the "9" key to enter the sleep mode and press the "0" key to exit.
+
+Simple Chip-8 emulator with SDL2 as a graphics and sound library.
+
+## Features
+
+- The main system runs at 500 Hz and the timers run at 60 Hz.
+- The sound system is implemented.
+- Press <kbd>Space</kbd> to enter the sleep mode. Press it again to exit.
+- Press <kbd>9</kbd> or <kbd>0</kbd> to change the objects/background color.
+- You can easily check the inner variables. Just uncomment Debug().
 
 ## Installation
+
 ### Linux:
-```
+
+```sh
 $ sudo apt-get install libsdl2-dev
 ```
 
 ## Usage
-Prepare the ROM in advance. Do not use copyrighted ROMs; use public domain ones.
-```
+
+Prepare the ROM in advance. Do not use copyrighted ROMs; use public domain ROMs.
+
+```sh
 $ make
-$ make run ROM=<ROM>
+$ make run ROM=<rom_path>
 ```
+
+## Key bindings
+
+##### Original Chip8 keyboard:
+
+| | | | |
+|-|-|-|-|
+|1|2|3|C|
+|4|5|6|D|
+|7|8|9|E|
+|A|0|B|F|
+
+##### Emulated keyboard:
+
+| | | | |
+|-|-|-|-|
+|1|2|3|4|
+|Q|W|E|R|
+|A|S|D|F|
+|Z|X|C|V|
 
 ## References
 - http://devernay.free.fr/hacks/chip8/C8TECH10.HTM

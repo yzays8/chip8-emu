@@ -27,7 +27,7 @@ void Graphic::InitializeWindow(const int window_scale) {
     std::exit(EXIT_FAILURE);
   }
   SDL_SetWindowTitle(window_, "Chip-8 Emulator");
-  SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
+  SDL_SetRenderDrawColor(renderer_, bg_rgb_[R], bg_rgb_[G], bg_rgb_[B], 255);
   SDL_RenderClear(renderer_);
   SDL_RenderPresent(renderer_);
   pixel_ = {
@@ -41,16 +41,19 @@ void Graphic::InitializeWindow(const int window_scale) {
 }
 
 void Graphic::Render() {
+  // draw background
+  SDL_SetRenderDrawColor(renderer_, bg_rgb_[R], bg_rgb_[G], bg_rgb_[B], 255);
+  SDL_RenderClear(renderer_);
+
+  // draw objects
+  SDL_SetRenderDrawColor(renderer_, obj_rgb_[R], obj_rgb_[G], obj_rgb_[B], 255);
   for (int i = 0; i < 32; ++i) {
     for (int j = 0; j < 64; ++j) {
       pixel_.x = window_scale_ * j;
       pixel_.y = window_scale_ * i;
       if (frame_buffer_[i][j] == 1) {
-        SDL_SetRenderDrawColor(renderer_, obj_rgb_[R], obj_rgb_[G], obj_rgb_[B], 255);
-      } else {
-        SDL_SetRenderDrawColor(renderer_, bg_rgb_[R], bg_rgb_[G], bg_rgb_[B], 255);
+        SDL_RenderFillRect(renderer_, &pixel_);
       }
-      SDL_RenderFillRect(renderer_, &pixel_);
     }
   }
   SDL_RenderPresent(renderer_); // This function should not be placed in the loop

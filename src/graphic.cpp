@@ -5,7 +5,7 @@
 #include "graphic.hpp"
 
 Graphic::Graphic()
-    : frame_buffer_{}, window_scale_{15}, obj_rgb{0, 255, 255}, bg_rgb{0, 0, 0},
+    : frame_buffer_{}, window_scale_{15}, obj_rgb_{0, 255, 255}, bg_rgb_{0, 0, 0},
       window_{}, renderer_{}, pixel_{} {
 }
 
@@ -46,9 +46,9 @@ void Graphic::Render() {
       pixel_.x = window_scale_ * j;
       pixel_.y = window_scale_ * i;
       if (frame_buffer_[i][j] == 1) {
-        SDL_SetRenderDrawColor(renderer_, obj_rgb[R], obj_rgb[G], obj_rgb[B], 255);
+        SDL_SetRenderDrawColor(renderer_, obj_rgb_[R], obj_rgb_[G], obj_rgb_[B], 255);
       } else {
-        SDL_SetRenderDrawColor(renderer_, bg_rgb[R], bg_rgb[G], bg_rgb[B], 255);
+        SDL_SetRenderDrawColor(renderer_, bg_rgb_[R], bg_rgb_[G], bg_rgb_[B], 255);
       }
       SDL_RenderFillRect(renderer_, &pixel_);
     }
@@ -57,15 +57,15 @@ void Graphic::Render() {
 }
 
 void Graphic::ChangeObjectColor(uint8_t r, uint8_t g, uint8_t b) {
-  obj_rgb[R] = r;
-  obj_rgb[G] = g;
-  obj_rgb[B] = b;
+  obj_rgb_[R] = r;
+  obj_rgb_[G] = g;
+  obj_rgb_[B] = b;
 }
 
 void Graphic::ChangeBackGroundColor(uint8_t r, uint8_t g, uint8_t b) {
-  bg_rgb[R] = r;
-  bg_rgb[G] = g;
-  bg_rgb[B] = b;
+  bg_rgb_[R] = r;
+  bg_rgb_[G] = g;
+  bg_rgb_[B] = b;
 }
 
 std::array<std::array<bool, 64>, 32>& Graphic::GetBuffer() {

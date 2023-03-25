@@ -4,7 +4,7 @@
 
 #include "sound.hpp"
 
-Sound::Sound() : beep_{} {
+Sound::Sound() : beep_{nullptr} {
 }
 
 Sound::~Sound() {
@@ -13,13 +13,13 @@ Sound::~Sound() {
 
 void Sound::InitializeSound() {
   if (SDL_Init(SDL_INIT_AUDIO) != 0) {
-    std::cerr << "Failed to initialize SDL audio 1" << std::endl;
+    std::cerr << "Failed to initialize SDL audio: " << SDL_GetError() << std::endl;
     SDL_Quit();
     std::exit(EXIT_FAILURE);
   }
 
   if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 1, 2048) != 0) {
-    std::cerr << "Failed to initialize SDL audio 2" << std::endl;
+    std::cerr << "Failed to open SDL mixer" << std::endl;
     SDL_Quit();
     std::exit(EXIT_FAILURE);
   }

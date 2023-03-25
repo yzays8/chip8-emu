@@ -6,7 +6,7 @@
 
 Graphic::Graphic()
     : frame_buffer_{}, window_scale_{15}, obj_rgb_{0, 255, 255}, bg_rgb_{0, 0, 0},
-      window_{}, renderer_{}, pixel_{} {
+      window_{nullptr}, renderer_{nullptr}, pixel_{} {
 }
 
 Graphic::~Graphic() {
@@ -17,16 +17,18 @@ void Graphic::InitializeWindow(const int window_scale) {
   window_scale_ = window_scale;
 
   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-    std::cerr << "Failed to initialize SDL graphic" << std::endl;
+    std::cerr << "Failed to initialize SDL graphic: " << SDL_GetError() << std::endl;
     SDL_Quit();
     std::exit(EXIT_FAILURE);
   }
+
   if (SDL_CreateWindowAndRenderer(64 * window_scale_, 32 * window_scale_, 0, &window_, &renderer_) != 0) {
-    std::cerr << "Failed to create window and renderer" << std::endl;
+    std::cerr << "Failed to create SDL window or SDL renderer: " << SDL_GetError() << std::endl;
     SDL_Quit();
     std::exit(EXIT_FAILURE);
   }
   SDL_SetWindowTitle(window_, "Chip-8 Emulator");
+
   SDL_SetRenderDrawColor(renderer_, bg_rgb_[R], bg_rgb_[G], bg_rgb_[B], 255);
   SDL_RenderClear(renderer_);
   SDL_RenderPresent(renderer_);

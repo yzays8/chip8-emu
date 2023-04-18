@@ -10,11 +10,11 @@ Simple Chip-8 emulator with SDL2 as a graphics and sound library.
 - The sound system is implemented.
 - Press <kbd>Space</kbd> to enter the sleep mode. Press it again to exit.
 - Press <kbd>9</kbd> or <kbd>0</kbd> to change the objects/background color.
-- You can easily check the inner variables. Just uncomment Debug().
+- It has a debug mode.
 
 ## Installation
 
-### Linux:
+### Linux
 
 ```sh
 $ sudo apt-get install libsdl2-dev
@@ -22,16 +22,25 @@ $ sudo apt-get install libsdl2-dev
 
 ## Usage
 
-Prepare the ROM in advance. Do not use copyrighted ROMs; use public domain ROMs.
+Prepare the ROM in advance.
+
+### standard mode
 
 ```sh
 $ make
 $ make run ROM=<rom_path>
 ```
 
+### debug mode
+
+```sh
+$ make
+$ make debug ROM=<rom_path>
+```
+
 ## Key bindings
 
-##### Original Chip8 keyboard:
+#### Original Chip8 keyboard
 
 | | | | |
 |-|-|-|-|
@@ -40,7 +49,7 @@ $ make run ROM=<rom_path>
 |7|8|9|E|
 |A|0|B|F|
 
-##### Emulated keyboard:
+#### Emulated keyboard
 
 | | | | |
 |-|-|-|-|

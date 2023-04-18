@@ -12,3 +12,7 @@ clean:
 .PHONY: run
 run:
 	make run ROM=$(ROM_PATH) -C $(SRCDIR)
+
+.PHONY: debug
+debug:
+	make debug ROM=$(ROM_PATH) -C $(SRCDIR)

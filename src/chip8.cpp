@@ -12,10 +12,10 @@
 #include "delay_timer.hpp"
 #include "sound_timer.hpp"
 
-Chip8::Chip8()
+Chip8::Chip8(const bool flag_debug)
     : mem_{}, stack_{}, v_{}, i_{0}, pc_{0x200}, sp_{0}, dt_{0}, st_{0},
-      drawable_{false}, is_sleeping_{false}, is_running_{false}, gen_{rd_()},
-      dis_{0, 255} {
+      flag_debug_{flag_debug}, drawable_{false}, is_sleeping_{false}, is_running_{false},
+      gen_{rd_()}, dis_{0, 255} {
   graphic_ = std::make_shared<Graphic>();
   sound_ = std::make_shared<Sound>();
   delay_timer_ = std::make_unique<DelayTimer>(dt_, is_sleeping_);
@@ -101,7 +101,8 @@ void Chip8::Debug(const uint16_t inst) {
 }
 
 void Chip8::InterpretInstruction(const uint16_t inst) {
-  // Debug(inst);
+  if (flag_debug_) Debug(inst);
+
   switch (inst & 0xF000) {
     case 0x0000:
       switch (inst) {

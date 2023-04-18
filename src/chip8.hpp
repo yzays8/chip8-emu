@@ -15,7 +15,7 @@ constexpr int kMainCycles = 500;  // 500 Hz
 
 class Chip8 {
  public:
-  Chip8();
+  Chip8(const bool flag_debug);
   void LoadROM(const std::string rom);
   void InitializeWindow(const int window_scale);
   void RunLoop();
@@ -43,6 +43,7 @@ class Chip8 {
   std::unique_ptr<Timer> delay_timer_, sound_timer_;
   std::unique_ptr<Input> input_;
 
+  bool flag_debug_;
   bool drawable_;
   std::atomic_bool is_sleeping_;
   bool is_running_;

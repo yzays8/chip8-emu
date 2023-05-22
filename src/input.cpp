@@ -1,5 +1,4 @@
 #include <ctime>
-#include <atomic>
 #include <SDL2/SDL.h>
 
 #include "input.hpp"
@@ -87,6 +86,7 @@ MessageType Input::ProcessInput() {
               static_cast<uint8_t>(rand() % 256),
             };
             graphic_->ChangeObjectColor(color);
+            msg = MSG_REDRAW;
             break;
           }
           case SDLK_0: {
@@ -96,6 +96,7 @@ MessageType Input::ProcessInput() {
               static_cast<uint8_t>(rand() % 256),
             };
             graphic_->ChangeBackGroundColor(color);
+            msg = MSG_REDRAW;
             break;
           }
         }

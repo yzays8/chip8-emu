@@ -1,7 +1,6 @@
 #pragma once
 
 #include <array>
-#include <atomic>
 #include <memory>
 
 #include "graphic.hpp"
@@ -9,6 +8,7 @@
 enum MessageType {
   MSG_NONE,
   MSG_CHANGE_SLEEP_STATE,
+  MSG_REDRAW,
   MSG_SHUTDOWN,
 };
 

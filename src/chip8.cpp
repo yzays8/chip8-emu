@@ -76,6 +76,9 @@ void Chip8::RunLoop() {
       case MSG_CHANGE_SLEEP_STATE:
         is_sleeping_ = !is_sleeping_;
         break;
+      case MSG_REDRAW:
+        graphic_->Render();
+        break;
       case MSG_SHUTDOWN:
         std::cout << "Shutdown..." << std::endl;
         is_running_ = false;

@@ -66,12 +66,12 @@ void Graphic::Render() {
   SDL_RenderPresent(renderer_); // This function should not be placed in the loop
 }
 
-void Graphic::ChangeObjectColor(uint8_t r, uint8_t g, uint8_t b) {
-  obj_rgb_ =  {r, g, b};
+void Graphic::ChangeObjectColor(Color color) {
+  obj_rgb_ = color;
 }
 
-void Graphic::ChangeBackGroundColor(uint8_t r, uint8_t g, uint8_t b) {
-  bg_rgb_ = {r, g, b};
+void Graphic::ChangeBackGroundColor(Color color) {
+  bg_rgb_ = color;
 }
 
 std::array<std::array<bool, 64>, 32>& Graphic::GetBuffer() {

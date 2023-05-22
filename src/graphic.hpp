@@ -22,22 +22,22 @@ const uint8_t kSprites[80] = {
   0xF0, 0x80, 0xF0, 0x80, 0x80, // F
 };
 
+struct Color {
+  uint8_t r, g, b;
+};
+
 class Graphic {
  public:
   Graphic();
   ~Graphic();
   void InitializeWindow(const int window_scale);
   void Render();
-  void ChangeObjectColor(uint8_t r, uint8_t g, uint8_t b);
-  void ChangeBackGroundColor(uint8_t r, uint8_t g, uint8_t b);
+  void ChangeObjectColor(Color color);
+  void ChangeBackGroundColor(Color color);
   void Terminate();
   std::array<std::array<bool, 64>, 32>& GetBuffer();
 
  private:
-  struct Color {
-    uint8_t r, g, b;
-  };
-
   std::array<std::array<bool, 64>, 32> frame_buffer_;
   int window_scale_;
   Color obj_rgb_, bg_rgb_;

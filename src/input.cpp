@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 
 #include "input.hpp"
+#include "graphic.hpp"
 
 Input::Input(std::shared_ptr<Graphic> graphic)
     : key_{}, space_is_released_{true}, graphic_{graphic} {
@@ -13,7 +14,7 @@ bool Input::GetKey(uint8_t num) {
   return key_[num];
 }
 
-MessageType Input::ProcessInput(std::atomic_bool& is_sleeping) {
+MessageType Input::ProcessInput() {
   SDL_Event event;
   MessageType msg = MSG_NONE;
 
@@ -75,24 +76,28 @@ MessageType Input::ProcessInput(std::atomic_bool& is_sleeping) {
           case SDLK_SPACE:
             // allow only one push
             if (space_is_released_) {
-              is_sleeping = !is_sleeping;
+              msg = MSG_CHANGE_SLEEP_STATE;
               space_is_released_ = false;
             }
             break;
-          case SDLK_9:
-            graphic_->ChangeObjectColor(
+          case SDLK_9: {
+            Color color {
               static_cast<uint8_t>(rand() % 256),
               static_cast<uint8_t>(rand() % 256),
-              static_cast<uint8_t>(rand() % 256)
-            );
+              static_cast<uint8_t>(rand() % 256),
+            };
+            graphic_->ChangeObjectColor(color);
             break;
-          case SDLK_0:
-            graphic_->ChangeBackGroundColor(
+          }
+          case SDLK_0: {
+            Color color {
               static_cast<uint8_t>(rand() % 256),
               static_cast<uint8_t>(rand() % 256),
-              static_cast<uint8_t>(rand() % 256)
-            );
+              static_cast<uint8_t>(rand() % 256),
+            };
+            graphic_->ChangeBackGroundColor(color);
             break;
+          }
         }
         break;
       case SDL_KEYUP:

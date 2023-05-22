@@ -8,14 +8,15 @@
 
 enum MessageType {
   MSG_NONE,
-  MSG_SHUTDOWN
+  MSG_CHANGE_SLEEP_STATE,
+  MSG_SHUTDOWN,
 };
 
 class Input {
  public:
   Input(std::shared_ptr<Graphic> graphic_);
   bool GetKey(uint8_t num);
-  MessageType ProcessInput(std::atomic_bool& is_sleeping);
+  MessageType ProcessInput();
 
  private:
   std::array<bool, 16> key_;

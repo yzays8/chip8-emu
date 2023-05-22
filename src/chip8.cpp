@@ -5,6 +5,7 @@
 #include <memory>
 #include <chrono>
 #include <random>
+#include <cassert>
 #include <SDL2/SDL.h>
 
 #include "chip8.hpp"
@@ -67,21 +68,30 @@ void Chip8::RunLoop() {
   is_running_ = true;
   while (is_running_) {
     auto start_time = std::chrono::high_resolution_clock::now();
-    msg = input_->ProcessInput(is_sleeping_);
-    if (msg == MSG_SHUTDOWN) {
-      std::cout << "Shutdown..." << std::endl;
-      drawable_ = false;
-      is_sleeping_ = true;
-      is_running_ = false;
+
+    msg = input_->ProcessInput();
+    switch (msg) {
+      case MSG_NONE:
+        break;
+      case MSG_CHANGE_SLEEP_STATE:
+        is_sleeping_ = !is_sleeping_;
+        break;
+      case MSG_SHUTDOWN:
+        std::cout << "Shutdown..." << std::endl;
+        is_running_ = false;
+        break;
+      default:
+        assert(false);
     }
-    if (!is_sleeping_) {
+
+    if (is_running_ && !is_sleeping_) {
       Tick();
       if (drawable_) {
         drawable_ = false;
         graphic_->Render();
       }
+      std::this_thread::sleep_until(start_time + interval);
     }
-    std::this_thread::sleep_until(start_time + interval);
   }
 }
 

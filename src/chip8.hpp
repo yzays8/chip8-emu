@@ -9,7 +9,6 @@
 #include "graphic.hpp"
 #include "delay_timer.hpp"
 #include "sound_timer.hpp"
-#include "sound.hpp"
 #include "input.hpp"
 
 constexpr int kMainCycles = 500;  // 500 Hz
@@ -22,13 +21,10 @@ class Chip8 {
   void RunLoop();
 
  private:
-  void InitializeSound();
   void StartTimers();
   void Tick();
   void InterpretInstruction(const uint16_t inst);
   void Debug(const uint16_t inst);
-  void Shutdown();
-  void ExitByError();
 
   std::array<uint8_t, 4096> mem_;
   std::array<uint16_t, 16> stack_;
@@ -37,16 +33,15 @@ class Chip8 {
   uint16_t pc_;
   uint8_t sp_;
 
-  std::shared_ptr<Graphic> graphic_;
-  std::shared_ptr<Sound> sound_;
-  std::unique_ptr<DelayTimer> delay_timer_;
-  std::unique_ptr<SoundTimer> sound_timer_;
-  std::unique_ptr<Input> input_;
-
   bool flag_debug_;
   bool drawable_;
   std::atomic_bool is_sleeping_;
   bool is_running_;
+
+  std::shared_ptr<Graphic> graphic_;
+  std::unique_ptr<DelayTimer> delay_timer_;
+  std::unique_ptr<SoundTimer> sound_timer_;
+  std::unique_ptr<Input> input_;
 
   std::random_device rd_;
   std::mt19937 gen_;

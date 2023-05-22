@@ -6,14 +6,14 @@
 #include "sound_timer.hpp"
 #include "sound.hpp"
 
-SoundTimer::SoundTimer(std::shared_ptr<Sound> sound, std::atomic_bool& is_sleeping)
+SoundTimer::SoundTimer(std::atomic_bool& is_sleeping)
     : st_{0},
       mutex_{},
       thread_{},
       timer_is_running_{false},
       is_beeping_{false},
       system_is_sleeping_{is_sleeping},
-      sound_{sound} {
+      sound_{std::make_unique<Sound>()}{
 }
 
 SoundTimer::~SoundTimer() {
@@ -24,6 +24,10 @@ SoundTimer::~SoundTimer() {
 
 void SoundTimer::Start() {
   const auto interval = std::chrono::duration<int, std::ratio<1, kSoundTimerCycles>>(1); // 60 Hz
+
+  sound_->InitializeSound();
+  sound_->OpenAudioFile(kBeepFilePath);
+
   timer_is_running_ = true;
   thread_ = std::thread([this, interval] {
     while (timer_is_running_) {
@@ -66,6 +70,7 @@ uint8_t SoundTimer::GetRegisterValue() {
 }
 
 void SoundTimer::Terminate() {
+  if (is_beeping_) sound_->StopBeep();
   timer_is_running_ = false;
   thread_.join();
   std::cout << "Stopped SoundTimer" << std::endl;

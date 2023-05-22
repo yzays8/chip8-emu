@@ -23,13 +23,12 @@ Chip8::Chip8(const bool flag_debug)
       drawable_{false},
       is_sleeping_{false},
       is_running_{false},
+      graphic_{std::make_shared<Graphic>()},
+      delay_timer_{std::make_unique<DelayTimer>(is_sleeping_)},
+      sound_timer_{std::make_unique<SoundTimer>(is_sleeping_)},
+      input_{std::make_unique<Input>(graphic_)},
       gen_{rd_()},
       dis_{0, 255} {
-  graphic_ = std::make_shared<Graphic>();
-  sound_ = std::make_shared<Sound>();
-  delay_timer_ = std::make_unique<DelayTimer>(is_sleeping_);
-  sound_timer_ = std::make_unique<SoundTimer>(sound_, is_sleeping_);
-  input_ = std::make_unique<Input>(graphic_);
   std::copy(kSprites, kSprites + 80, mem_.begin());
 }
 
@@ -50,29 +49,9 @@ void Chip8::InitializeWindow(const int window_scale) {
   graphic_->InitializeWindow(window_scale);
 }
 
-void Chip8::InitializeSound() {
-  sound_->InitializeSound();
-  sound_->OpenAudioFile(kBeepFilePath);
-}
-
 void Chip8::StartTimers() {
   delay_timer_->Start();
   sound_timer_->Start();
-}
-
-void Chip8::Shutdown() {
-  std::cout << "Shutdown..." << std::endl;
-  drawable_ = false;
-  is_sleeping_ = true;
-  is_running_ = false;
-}
-
-void Chip8::ExitByError() {
-  sound_->Terminate();
-  sound_timer_->Terminate();
-  delay_timer_->Terminate();
-  graphic_->Terminate();
-  std::exit(EXIT_FAILURE);
 }
 
 void Chip8::Tick() {
@@ -84,14 +63,16 @@ void Chip8::RunLoop() {
   const auto interval = std::chrono::duration<int, std::ratio<1, kMainCycles>>(1);  // 1/kMainCycles seconds
   MessageType msg;
 
-  InitializeSound();
   StartTimers();
   is_running_ = true;
   while (is_running_) {
     auto start_time = std::chrono::high_resolution_clock::now();
     msg = input_->ProcessInput(is_sleeping_);
     if (msg == MSG_SHUTDOWN) {
-      Shutdown();
+      std::cout << "Shutdown..." << std::endl;
+      drawable_ = false;
+      is_sleeping_ = true;
+      is_running_ = false;
     }
     if (!is_sleeping_) {
       Tick();
@@ -127,7 +108,8 @@ void Chip8::InterpretInstruction(const uint16_t inst) {
           break;
         default:
           std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << inst << std::endl;
-          ExitByError();
+          is_running_ = false;
+          break;
       }
       break;
     case 0x1000:
@@ -242,7 +224,8 @@ void Chip8::InterpretInstruction(const uint16_t inst) {
           break;
         default:
           std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << inst << std::endl;
-          ExitByError();
+          is_running_ = false;
+          break;
       }
       break;
     case 0x9000:
@@ -309,7 +292,8 @@ void Chip8::InterpretInstruction(const uint16_t inst) {
           break;
         default:
           std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << inst << std::endl;
-          ExitByError();
+          is_running_ = false;
+          break;
       }
       break;
     case 0xF000:
@@ -388,11 +372,13 @@ void Chip8::InterpretInstruction(const uint16_t inst) {
         }
         default:
           std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << inst << std::endl;
-          ExitByError();
+          is_running_ = false;
+          break;
       }
       break;
     default:
       std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << inst << std::endl;
-      ExitByError();
+      is_running_ = false;
+      break;
   }
 }

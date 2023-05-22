@@ -4,8 +4,7 @@
 
 #include "sound.hpp"
 
-Sound::Sound() : beep_{nullptr} {
-}
+Sound::Sound() : beep_{nullptr} {}
 
 Sound::~Sound() {
   Terminate();

@@ -5,8 +5,13 @@
 #include "graphic.hpp"
 
 Graphic::Graphic()
-    : frame_buffer_{}, window_scale_{15}, obj_rgb_{0, 255, 255}, bg_rgb_{0, 0, 0},
-      window_{nullptr}, renderer_{nullptr}, pixel_{} {
+    : frame_buffer_{},
+      window_scale_{15},
+      obj_rgb_{255, 255, 255},
+      bg_rgb_{0, 0, 0},
+      window_{nullptr},
+      renderer_{nullptr},
+      pixel_{} {
 }
 
 Graphic::~Graphic() {
@@ -27,9 +32,9 @@ void Graphic::InitializeWindow(const int window_scale) {
     SDL_Quit();
     std::exit(EXIT_FAILURE);
   }
-  SDL_SetWindowTitle(window_, "Chip-8 Emulator");
+  SDL_SetWindowTitle(window_, "CHIP-8 Emulator");
 
-  SDL_SetRenderDrawColor(renderer_, bg_rgb_[R], bg_rgb_[G], bg_rgb_[B], 255);
+  SDL_SetRenderDrawColor(renderer_, bg_rgb_.r, bg_rgb_.g, bg_rgb_.b, 255);
   SDL_RenderClear(renderer_);
   SDL_RenderPresent(renderer_);
   pixel_ = {
@@ -44,11 +49,11 @@ void Graphic::InitializeWindow(const int window_scale) {
 
 void Graphic::Render() {
   // draw background
-  SDL_SetRenderDrawColor(renderer_, bg_rgb_[R], bg_rgb_[G], bg_rgb_[B], 255);
+  SDL_SetRenderDrawColor(renderer_, bg_rgb_.r, bg_rgb_.g, bg_rgb_.b, 255);
   SDL_RenderClear(renderer_);
 
   // draw objects
-  SDL_SetRenderDrawColor(renderer_, obj_rgb_[R], obj_rgb_[G], obj_rgb_[B], 255);
+  SDL_SetRenderDrawColor(renderer_, obj_rgb_.r, obj_rgb_.g, obj_rgb_.b, 255);
   for (int i = 0; i < 32; ++i) {
     for (int j = 0; j < 64; ++j) {
       if (frame_buffer_[i][j] == 1) {
@@ -62,15 +67,11 @@ void Graphic::Render() {
 }
 
 void Graphic::ChangeObjectColor(uint8_t r, uint8_t g, uint8_t b) {
-  obj_rgb_[R] = r;
-  obj_rgb_[G] = g;
-  obj_rgb_[B] = b;
+  obj_rgb_ =  {r, g, b};
 }
 
 void Graphic::ChangeBackGroundColor(uint8_t r, uint8_t g, uint8_t b) {
-  bg_rgb_[R] = r;
-  bg_rgb_[G] = g;
-  bg_rgb_[B] = b;
+  bg_rgb_ = {r, g, b};
 }
 
 std::array<std::array<bool, 64>, 32>& Graphic::GetBuffer() {

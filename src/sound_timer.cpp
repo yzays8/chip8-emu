@@ -7,8 +7,13 @@
 #include "sound.hpp"
 
 SoundTimer::SoundTimer(uint8_t& st, std::shared_ptr<Sound> sound, std::atomic_bool& is_sleeping)
-    : st_{st}, mutex_{}, thread_{}, timer_is_running_{false}, is_beeping_{false},
-      system_is_sleeping_{is_sleeping}, sound_{sound} {
+    : st_{st},
+      mutex_{},
+      thread_{},
+      timer_is_running_{false},
+      is_beeping_{false},
+      system_is_sleeping_{is_sleeping},
+      sound_{sound} {
 }
 
 SoundTimer::~SoundTimer() {
@@ -20,7 +25,7 @@ SoundTimer::~SoundTimer() {
 void SoundTimer::Start() {
   const auto interval = std::chrono::duration<int, std::ratio<1, kTimerCycles>>(1); // 60 Hz
   timer_is_running_ = true;
-  thread_ = std::thread([this, interval]{
+  thread_ = std::thread([this, interval] {
     while (timer_is_running_) {
       std::this_thread::sleep_for(interval);
       if (system_is_sleeping_) {

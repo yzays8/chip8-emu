@@ -34,11 +34,13 @@ class Graphic {
   std::array<std::array<bool, 64>, 32>& GetBuffer();
 
  private:
-  enum Color {R, G, B};
+  struct Color {
+    uint8_t r, g, b;
+  };
 
   std::array<std::array<bool, 64>, 32> frame_buffer_;
   int window_scale_;
-  std::array<uint8_t, 3> obj_rgb_, bg_rgb_;
+  Color obj_rgb_, bg_rgb_;
   SDL_Window *window_;
   SDL_Renderer *renderer_;
   SDL_Rect pixel_;

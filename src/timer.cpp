@@ -1,7 +1,6 @@
 #include "timer.hpp"
 
-Timer::~Timer() {
-}
+Timer::~Timer() {}
 
 void Timer::TimeoutHandler() {
   DecrementTimerValue();

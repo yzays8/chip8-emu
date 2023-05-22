@@ -6,22 +6,23 @@
 #include <atomic>
 #include <memory>
 
-#include "timer.hpp"
 #include "sound.hpp"
 
-class SoundTimer : public Timer {
+constexpr int kSoundTimerCycles = 60; // 60 Hz
+
+class SoundTimer {
  public:
-  SoundTimer(uint8_t& st, std::shared_ptr<Sound> sound, std::atomic_bool& is_sleeping);
+  SoundTimer(std::shared_ptr<Sound> sound, std::atomic_bool& is_sleeping);
   ~SoundTimer();
-  void Start() override;
-  void SetRegisterValue(uint8_t value) override;
-  uint8_t& GetRegisterValue() override;
-  void Terminate() override;
+  void Start();
+  void SetRegisterValue(uint8_t value);
+  uint8_t GetRegisterValue();
+  void Terminate();
 
  private:
-  void DecrementTimerValue() override;
+  void DecrementTimerValue();
 
-  uint8_t& st_;
+  uint8_t st_;
   std::mutex mutex_;
   std::thread thread_;
   std::atomic_bool timer_is_running_;

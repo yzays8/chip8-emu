@@ -1,6 +1,6 @@
 CC = g++
 TARGET = emu
-OBJS = emu.o chip8.o graphic.o timer.o sound_timer.o delay_timer.o input.o sound.o
+OBJS = emu.o chip8.o graphic.o sound_timer.o delay_timer.o input.o sound.o
 
 CXXFLAGS = -O2 -Wall -std=c++2b `sdl2-config --cflags`
 LDFLAGS = -pthread

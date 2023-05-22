@@ -5,21 +5,21 @@
 #include <mutex>
 #include <atomic>
 
-#include "timer.hpp"
+constexpr int kDelayTimerCycles = 60; // 60 Hz
 
-class DelayTimer : public Timer {
+class DelayTimer {
  public:
-  DelayTimer(uint8_t& dt, std::atomic_bool& is_sleeping);
+  DelayTimer(std::atomic_bool& is_sleeping);
   ~DelayTimer();
-  void Start() override;
-  void SetRegisterValue(uint8_t value) override;
-  uint8_t& GetRegisterValue() override;
-  void Terminate() override;
+  void Start();
+  void SetRegisterValue(uint8_t value);
+  uint8_t GetRegisterValue();
+  void Terminate();
 
  private:
-  void DecrementTimerValue() override;
+  void DecrementTimerValue();
 
-  uint8_t& dt_;
+  uint8_t dt_;
   std::mutex mutex_;
   std::thread thread_;
   std::atomic_bool timer_is_running_;

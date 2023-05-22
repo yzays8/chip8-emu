@@ -5,8 +5,8 @@
 
 #include "delay_timer.hpp"
 
-DelayTimer::DelayTimer(uint8_t& dt, std::atomic_bool& is_sleeping)
-    : dt_{dt},
+DelayTimer::DelayTimer(std::atomic_bool& is_sleeping)
+    : dt_{0},
       mutex_{},
       thread_{},
       timer_is_running_{false},
@@ -20,7 +20,7 @@ DelayTimer::~DelayTimer() {
 }
 
 void DelayTimer::Start() {
-  const auto interval = std::chrono::duration<int, std::ratio<1, kTimerCycles>>(1); // 60 Hz
+  const auto interval = std::chrono::duration<int, std::ratio<1, kDelayTimerCycles>>(1); // 60 Hz
   timer_is_running_ = true;
   thread_ = std::thread([this, interval] {
     while (timer_is_running_) {
@@ -29,7 +29,7 @@ void DelayTimer::Start() {
         // stop timer
         continue;
       }
-      TimeoutHandler();
+      DecrementTimerValue();
     }
   });
 }
@@ -46,7 +46,7 @@ void DelayTimer::SetRegisterValue(uint8_t value) {
   dt_ = value;
 }
 
-uint8_t& DelayTimer::GetRegisterValue() {
+uint8_t DelayTimer::GetRegisterValue() {
   std::lock_guard<std::mutex> lock(mutex_);
   return dt_;
 }

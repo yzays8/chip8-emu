@@ -19,8 +19,6 @@ Chip8::Chip8(const bool flag_debug)
       i_{0},
       pc_{0x200},
       sp_{0},
-      dt_{0},
-      st_{0},
       flag_debug_{flag_debug},
       drawable_{false},
       is_sleeping_{false},
@@ -29,8 +27,8 @@ Chip8::Chip8(const bool flag_debug)
       dis_{0, 255} {
   graphic_ = std::make_shared<Graphic>();
   sound_ = std::make_shared<Sound>();
-  delay_timer_ = std::make_unique<DelayTimer>(dt_, is_sleeping_);
-  sound_timer_ = std::make_unique<SoundTimer>(st_, sound_, is_sleeping_);
+  delay_timer_ = std::make_unique<DelayTimer>(is_sleeping_);
+  sound_timer_ = std::make_unique<SoundTimer>(sound_, is_sleeping_);
   input_ = std::make_unique<Input>(graphic_);
   std::copy(kSprites, kSprites + 80, mem_.begin());
 }
@@ -83,7 +81,7 @@ void Chip8::Tick() {
 }
 
 void Chip8::RunLoop() {
-  const auto interval = std::chrono::duration<int, std::ratio<1, kMainCycles>>(1);  // 1/kMainCycles s
+  const auto interval = std::chrono::duration<int, std::ratio<1, kMainCycles>>(1);  // 1/kMainCycles seconds
   MessageType msg;
 
   InitializeSound();
@@ -208,8 +206,8 @@ void Chip8::InterpretInstruction(const uint16_t inst) {
           }
           v_[(inst & 0x0F00) >> 8] = sum & 0xFF;  // fix the overflow
           pc_ += 2;
-          }
           break;
+        }
         case 0x0005:
           // 0x8xy5
           if (v_[(inst & 0x0F00) >> 8] > v_[(inst & 0x00F0) >> 4]) {
@@ -268,9 +266,8 @@ void Chip8::InterpretInstruction(const uint16_t inst) {
       v_[(inst & 0x0F00) >> 8] = dis_(gen_) & (inst & 0x00FF);
       pc_ += 2;
       break;
-    case 0xD000:
+    case 0xD000: {
       // 0xDxyn
-      {
         uint16_t x = v_[(inst & 0x0F00) >> 8] % 64;
         uint16_t y = v_[(inst & 0x00F0) >> 4] % 32;
         const uint16_t n = inst & 0x000F;
@@ -292,8 +289,8 @@ void Chip8::InterpretInstruction(const uint16_t inst) {
 
         drawable_ = true;
         pc_ += 2;
-      }
       break;
+    }
     case 0xE000:
       switch (inst & 0x00FF) {
         case 0x009E:
@@ -334,8 +331,8 @@ void Chip8::InterpretInstruction(const uint16_t inst) {
           if (key_is_pressed) {
             pc_ += 2;
           }
-          }
           break;
+        }
         case 0x0015:
           // 0xFx15
           delay_timer_->SetRegisterValue(v_[(inst & 0x0F00) >> 8]);
@@ -368,29 +365,27 @@ void Chip8::InterpretInstruction(const uint16_t inst) {
           mem_[i_ + 2] = v_[(inst & 0x0F00) >> 8] % 10;
           pc_ += 2;
           break;
-        case 0x0055:
+        case 0x0055: {
           // 0xFx55
           // Original COSMAC VIP implementation for old ROMs
-          {
             const uint16_t tmp = (inst & 0x0F00) >> 8;
             for (uint16_t i = 0; i <= tmp; ++i) {   // Forgetting the equal sign causes tons of weird behavior
               mem_[i_ + i] = v_[i];
             }
             i_ += tmp + 1;
             pc_ += 2;
-          }
           break;
-        case 0x0065:
+        }
+        case 0x0065: {
           // 0xFx65
-          {
             const uint16_t tmp = (inst & 0x0F00) >> 8;
             for (uint16_t i = 0; i <= tmp; ++i) {   // Forgetting the equal sign causes tons of weird behavior
               v_[i] = mem_[i_ + i];
             }
             i_ += tmp + 1;
             pc_ += 2;
-          }
           break;
+        }
         default:
           std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << inst << std::endl;
           ExitByError();

@@ -7,7 +7,8 @@
 #include <random>
 
 #include "graphic.hpp"
-#include "timer.hpp"
+#include "delay_timer.hpp"
+#include "sound_timer.hpp"
 #include "sound.hpp"
 #include "input.hpp"
 
@@ -35,12 +36,11 @@ class Chip8 {
   uint16_t i_;
   uint16_t pc_;
   uint8_t sp_;
-  uint8_t dt_;
-  uint8_t st_;
 
   std::shared_ptr<Graphic> graphic_;
   std::shared_ptr<Sound> sound_;
-  std::unique_ptr<Timer> delay_timer_, sound_timer_;
+  std::unique_ptr<DelayTimer> delay_timer_;
+  std::unique_ptr<SoundTimer> sound_timer_;
   std::unique_ptr<Input> input_;
 
   bool flag_debug_;

@@ -6,8 +6,8 @@
 #include "sound_timer.hpp"
 #include "sound.hpp"
 
-SoundTimer::SoundTimer(uint8_t& st, std::shared_ptr<Sound> sound, std::atomic_bool& is_sleeping)
-    : st_{st},
+SoundTimer::SoundTimer(std::shared_ptr<Sound> sound, std::atomic_bool& is_sleeping)
+    : st_{0},
       mutex_{},
       thread_{},
       timer_is_running_{false},
@@ -23,7 +23,7 @@ SoundTimer::~SoundTimer() {
 }
 
 void SoundTimer::Start() {
-  const auto interval = std::chrono::duration<int, std::ratio<1, kTimerCycles>>(1); // 60 Hz
+  const auto interval = std::chrono::duration<int, std::ratio<1, kSoundTimerCycles>>(1); // 60 Hz
   timer_is_running_ = true;
   thread_ = std::thread([this, interval] {
     while (timer_is_running_) {
@@ -36,7 +36,7 @@ void SoundTimer::Start() {
         // resume timer
         sound_->Beep();
       }
-      TimeoutHandler();
+      DecrementTimerValue();
     }
   });
 }
@@ -60,7 +60,7 @@ void SoundTimer::SetRegisterValue(uint8_t value) {
   st_ = value;
 }
 
-uint8_t& SoundTimer::GetRegisterValue() {
+uint8_t SoundTimer::GetRegisterValue() {
   std::lock_guard<std::mutex> lock(mutex_);
   return st_;
 }

@@ -63,6 +63,7 @@ void Chip8::Tick() {
 void Chip8::RunLoop() {
   const auto interval = std::chrono::duration<int, std::ratio<1, kMainCycles>>(1);  // 1/kMainCycles seconds
   MessageType msg;
+  bool one_step = false;
 
   StartTimers();
   is_running_ = true;
@@ -76,6 +77,9 @@ void Chip8::RunLoop() {
       case MSG_CHANGE_SLEEP_STATE:
         is_sleeping_ = !is_sleeping_;
         break;
+      case MSG_TICK_WHILE_SLEEP:
+        one_step = true;
+        break;
       case MSG_REDRAW:
         graphic_->Render();
         break;
@@ -87,12 +91,15 @@ void Chip8::RunLoop() {
         assert(false);
     }
 
-    if (is_running_ && !is_sleeping_) {
+    if ((is_running_ && !is_sleeping_)
+      || (is_running_ && is_sleeping_ && one_step))
+    {
       Tick();
       if (drawable_) {
         drawable_ = false;
         graphic_->Render();
       }
+      if (one_step) one_step = false;
       std::this_thread::sleep_until(start_time + interval);
     }
   }
@@ -199,7 +206,7 @@ void Chip8::InterpretInstruction(const uint16_t inst) {
           } else {
             v_[0xF] = 0;
           }
-          v_[(inst & 0x0F00) >> 8] = sum & 0xFF;  // fix the overflow
+          v_[(inst & 0x0F00) >> 8] = static_cast<uint8_t>(sum & 0xFF);  // fix the overflow
           pc_ += 2;
           break;
         }

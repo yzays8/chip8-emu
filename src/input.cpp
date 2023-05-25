@@ -79,6 +79,9 @@ MessageType Input::ProcessInput() {
               space_is_released_ = false;
             }
             break;
+          case SDLK_t:
+            msg = MSG_TICK_WHILE_SLEEP;
+            break;
           case SDLK_9: {
             Color color {
               static_cast<uint8_t>(rand() % 256),

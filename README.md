@@ -9,6 +9,7 @@ Simple but full-featured CHIP-8 emulator.
 - The main system runs at 500 Hz and the timers run at 60 Hz.
 - The sound system works.
 - Press <kbd>Space</kbd> to sleep.
+- Press <kbd>T</kbd> to advance one CPU cycle during sleep.
 - Press <kbd>9</kbd> or <kbd>0</kbd> to change the objects/background color.
 
 ## Requirement

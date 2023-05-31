@@ -6,6 +6,7 @@
 #include <chrono>
 #include <random>
 #include <cassert>
+#include <filesystem>
 #include <SDL2/SDL.h>
 
 #include "chip8.hpp"
@@ -36,6 +37,10 @@ Chip8::Chip8(const bool flag_debug)
 }
 
 void Chip8::LoadROM(const std::string rom) {
+  if (std::filesystem::is_directory(rom)) {
+    std::cerr << "Given path is a directory" << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
   std::ifstream ifs(rom, std::ios::binary | std::ios::in);
   if (!ifs.is_open()) {
     std::cerr << "Failed to open ROM" << std::endl;

@@ -74,6 +74,9 @@ MessageType Input::ProcessInput() {
           case SDLK_v:
             key_[0xF] = 1;
             break;
+          case SDLK_ESCAPE:
+            msg = MSG_SHUTDOWN;
+            break;
           case SDLK_SPACE:
             // allow only one push
             if (space_is_released_) {

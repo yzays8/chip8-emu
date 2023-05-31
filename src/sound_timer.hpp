@@ -8,6 +8,8 @@
 
 #include "sound.hpp"
 
+namespace chip8_emu {
+
 constexpr int kSoundTimerCycles = 60; // 60 Hz
 
 class SoundTimer {
@@ -30,3 +32,5 @@ class SoundTimer {
   std::atomic_bool& system_is_sleeping_;
   std::unique_ptr<Sound> sound_;
 };
+
+} // namespace chip8_emu

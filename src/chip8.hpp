@@ -11,6 +11,8 @@
 #include "sound_timer.hpp"
 #include "input.hpp"
 
+namespace chip8_emu {
+
 constexpr int kMainCycles = 500;  // 500 Hz
 
 class Chip8 {
@@ -47,3 +49,5 @@ class Chip8 {
   std::mt19937 gen_;
   std::uniform_int_distribution<> dis_;
 };
+
+} // namespace chip8_emu

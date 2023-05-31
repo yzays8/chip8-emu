@@ -6,6 +6,8 @@
 #include "sound_timer.hpp"
 #include "sound.hpp"
 
+namespace chip8_emu {
+
 SoundTimer::SoundTimer(std::atomic_bool& is_sleeping)
     : st_{0},
       mutex_{},
@@ -75,3 +77,5 @@ void SoundTimer::Terminate() {
   thread_.join();
   std::cout << "Stopped SoundTimer" << std::endl;
 }
+
+} // namespace chip8_emu

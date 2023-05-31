@@ -5,6 +5,8 @@
 
 #include "graphic.hpp"
 
+namespace chip8_emu {
+
 enum MessageType {
   MSG_NONE,
   MSG_CHANGE_SLEEP_STATE,
@@ -25,3 +27,5 @@ class Input {
   bool space_is_released_;
   std::shared_ptr<Graphic> graphic_;
 };
+
+} // namespace chip8_emu

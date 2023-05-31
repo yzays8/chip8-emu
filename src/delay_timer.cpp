@@ -5,6 +5,8 @@
 
 #include "delay_timer.hpp"
 
+namespace chip8_emu {
+
 DelayTimer::DelayTimer(std::atomic_bool& is_sleeping)
     : dt_{0},
       mutex_{},
@@ -56,3 +58,5 @@ void DelayTimer::Terminate() {
   thread_.join();
   std::cout << "Stopped DelayTimer" << std::endl;
 }
+
+} // namespace chip8_emu

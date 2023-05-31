@@ -4,6 +4,8 @@
 
 #include "graphic.hpp"
 
+namespace chip8_emu {
+
 Graphic::Graphic()
     : frame_buffer_{},
       window_scale_{15},
@@ -84,3 +86,5 @@ void Graphic::Terminate() {
   SDL_Quit();
   std::cout << "Closed window" << std::endl;
 }
+
+} // namespace chip8_emu

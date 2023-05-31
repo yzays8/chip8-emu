@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  auto chip8 = std::make_unique<Chip8>(atoi(argv[2]));
+  auto chip8 = std::make_unique<chip8_emu::Chip8>(atoi(argv[2]));
 
   chip8->LoadROM(argv[1]);
   chip8->InitializeWindow(kWindowScale);

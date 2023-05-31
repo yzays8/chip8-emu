@@ -13,6 +13,8 @@
 #include "delay_timer.hpp"
 #include "sound_timer.hpp"
 
+namespace chip8_emu {
+
 Chip8::Chip8(const bool flag_debug)
     : mem_{},
       stack_{},
@@ -402,3 +404,5 @@ void Chip8::InterpretInstruction(const uint16_t inst) {
       break;
   }
 }
+
+} // namespace chip8_emu

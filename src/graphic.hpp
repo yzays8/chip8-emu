@@ -3,6 +3,8 @@
 #include <array>
 #include <SDL2/SDL.h>
 
+namespace chip8_emu {
+
 const uint8_t kSprites[80] = {
   0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
   0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -45,3 +47,5 @@ class Graphic {
   SDL_Renderer *renderer_;
   SDL_Rect pixel_;
 };
+
+} // namespace chip8_emu

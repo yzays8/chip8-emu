@@ -4,6 +4,8 @@
 
 #include "sound.hpp"
 
+namespace chip8_emu {
+
 Sound::Sound() : beep_{nullptr} {}
 
 Sound::~Sound() {
@@ -48,3 +50,5 @@ void Sound::Terminate() {
   SDL_Quit();
   std::cout << "Stopped sound" << std::endl;
 }
+
+} // namespace chip8_emu

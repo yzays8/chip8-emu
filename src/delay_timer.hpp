@@ -5,6 +5,8 @@
 #include <mutex>
 #include <atomic>
 
+namespace chip8_emu {
+
 constexpr int kDelayTimerCycles = 60; // 60 Hz
 
 class DelayTimer {
@@ -25,3 +27,5 @@ class DelayTimer {
   std::atomic_bool timer_is_running_;
   std::atomic_bool& system_is_sleeping_;
 };
+
+} // namespace chip8_emu

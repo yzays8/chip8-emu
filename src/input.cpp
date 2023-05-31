@@ -4,6 +4,8 @@
 #include "input.hpp"
 #include "graphic.hpp"
 
+namespace chip8_emu {
+
 Input::Input(std::shared_ptr<Graphic> graphic)
     : key_{}, space_is_released_{true}, graphic_{graphic} {
   std::srand((unsigned)time(nullptr));
@@ -163,3 +165,5 @@ MessageType Input::ProcessInput() {
   }
   return msg;
 }
+
+}  // namespace chip8_emu

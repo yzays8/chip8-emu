@@ -41,8 +41,13 @@ void Chip8::LoadROM(const std::string rom) {
     std::cerr << "Failed to open ROM" << std::endl;
     std::exit(EXIT_FAILURE);
   }
+
   char data;
   for (int i = 0x200; ifs.get(data); ++i) {
+    if (i >= 4096) {
+      std::cerr << "ROM size is too large" << std::endl;
+      std::exit(EXIT_FAILURE);
+    }
     mem_[i] = static_cast<uint8_t>(data);
   }
   std::cout << "Loaded ROM" << std::endl;

@@ -20,7 +20,7 @@ Graphic::~Graphic() {
   Terminate();
 }
 
-void Graphic::InitializeWindow(const int window_scale) {
+void Graphic::InitializeWindow(int window_scale) {
   window_scale_ = window_scale;
 
   if (SDL_Init(SDL_INIT_VIDEO) != 0) {

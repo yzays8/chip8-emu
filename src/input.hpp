@@ -18,7 +18,7 @@ enum MessageType {
 class Input {
  public:
   Input(std::shared_ptr<Graphic> graphic_);
-  bool GetKey(uint8_t num);
+  bool GetKey(uint8_t num) const;
   MessageType ProcessInput();
 
  private:

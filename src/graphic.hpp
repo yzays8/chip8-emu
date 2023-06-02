@@ -5,7 +5,7 @@
 
 namespace chip8_emu {
 
-const uint8_t kSprites[80] = {
+const std::array<uint8_t, 80> kSprites = {
   0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
   0x20, 0x60, 0x20, 0x20, 0x70, // 1
   0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -32,7 +32,7 @@ class Graphic {
  public:
   Graphic();
   ~Graphic();
-  void InitializeWindow(const int window_scale);
+  void InitializeWindow(int window_scale);
   void Render();
   void ChangeObjectColor(Color color);
   void ChangeBackGroundColor(Color color);

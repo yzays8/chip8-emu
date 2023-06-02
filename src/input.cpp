@@ -11,7 +11,7 @@ Input::Input(std::shared_ptr<Graphic> graphic)
   std::srand((unsigned)time(nullptr));
 }
 
-bool Input::GetKey(uint8_t num) {
+bool Input::GetKey(uint8_t num) const {
   return key_[num];
 }
 

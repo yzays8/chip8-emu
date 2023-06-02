@@ -16,7 +16,7 @@
 
 namespace chip8_emu {
 
-Chip8::Chip8(const bool flag_debug)
+Chip8::Chip8(bool flag_debug)
     : mem_{},
       stack_{},
       v_{},
@@ -33,12 +33,12 @@ Chip8::Chip8(const bool flag_debug)
       input_{std::make_unique<Input>(graphic_)},
       gen_{rd_()},
       dis_{0, 255} {
-  std::copy(kSprites, kSprites + 80, mem_.begin());
+  std::copy(kSprites.begin(), kSprites.end(), mem_.begin());
 }
 
 void Chip8::LoadROM(const std::string rom) {
   if (std::filesystem::is_directory(rom)) {
-    std::cerr << "Given path is a directory" << std::endl;
+    std::cerr << rom << " is a directory" << std::endl;
     std::exit(EXIT_FAILURE);
   }
   std::ifstream ifs(rom, std::ios::binary | std::ios::in);
@@ -48,7 +48,7 @@ void Chip8::LoadROM(const std::string rom) {
   }
 
   char data;
-  for (int i = 0x200; ifs.get(data); ++i) {
+  for (uint16_t i = 0x200; ifs.get(data); ++i) {
     if (i >= 4096) {
       std::cerr << "ROM size is too large" << std::endl;
       std::exit(EXIT_FAILURE);
@@ -58,7 +58,7 @@ void Chip8::LoadROM(const std::string rom) {
   std::cout << "Loaded ROM" << std::endl;
 }
 
-void Chip8::InitializeWindow(const int window_scale) {
+void Chip8::InitializeWindow(int window_scale) {
   graphic_->InitializeWindow(window_scale);
 }
 
@@ -68,7 +68,7 @@ void Chip8::StartTimers() {
 }
 
 void Chip8::Tick() {
-  uint16_t inst = mem_[pc_] << 8 | mem_[pc_ + 1];
+  uint16_t inst = (mem_[pc_] << 8) | mem_[pc_ + 1];
   InterpretInstruction(inst);
 }
 
@@ -117,12 +117,12 @@ void Chip8::RunLoop() {
   }
 }
 
-void Chip8::Debug(const uint16_t inst) {
+void Chip8::Debug(uint16_t inst) {
   printf("Debug: pc=0x%04X, inst=0x%04X, i=0x%04X, sp=0x%02X, dt=0x%02X, st=0x%02X\n",
     pc_, inst, i_, sp_, delay_timer_->GetRegisterValue(), sound_timer_->GetRegisterValue());
 }
 
-void Chip8::InterpretInstruction(const uint16_t inst) {
+void Chip8::InterpretInstruction(uint16_t inst) {
   if (flag_debug_) Debug(inst);
 
   switch (inst & 0xF000) {

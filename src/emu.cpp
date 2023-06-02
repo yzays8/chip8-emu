@@ -3,7 +3,7 @@
 
 #include "chip8.hpp"
 
-const int kWindowScale = 15;  // change window size
+constexpr int kWindowScale = 15;  // change window size
 
 int main(int argc, char* argv[]) {
   if (argc != 3) {

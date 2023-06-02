@@ -17,16 +17,16 @@ constexpr int kMainCycles = 500;  // 500 Hz
 
 class Chip8 {
  public:
-  Chip8(const bool flag_debug);
+  Chip8(bool flag_debug);
   void LoadROM(const std::string rom);
-  void InitializeWindow(const int window_scale);
+  void InitializeWindow(int window_scale);
   void RunLoop();
 
  private:
   void StartTimers();
   void Tick();
-  void InterpretInstruction(const uint16_t inst);
-  void Debug(const uint16_t inst);
+  void InterpretInstruction(uint16_t inst);
+  void Debug(uint16_t inst);
 
   std::array<uint8_t, 4096> mem_;
   std::array<uint16_t, 16> stack_;

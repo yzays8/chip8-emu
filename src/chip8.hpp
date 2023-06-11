@@ -6,6 +6,7 @@
 #include <atomic>
 #include <random>
 
+#include "utils.hpp"
 #include "graphic.hpp"
 #include "delay_timer.hpp"
 #include "sound_timer.hpp"
@@ -20,7 +21,7 @@ class Chip8 {
   Chip8(bool flag_debug);
   void LoadROM(const std::string rom);
   void InitializeWindow(int window_scale);
-  bool RunLoop();
+  bool Run();
 
  private:
   void StartTimers();
@@ -41,14 +42,11 @@ class Chip8 {
   bool is_running_;
   bool exit_success_;
 
+  std::unique_ptr<Rand> rand_;
   std::shared_ptr<Graphic> graphic_;
   std::unique_ptr<DelayTimer> delay_timer_;
   std::unique_ptr<SoundTimer> sound_timer_;
   std::unique_ptr<Input> input_;
-
-  std::random_device rd_;
-  std::mt19937 gen_;
-  std::uniform_int_distribution<> dis_;
 };
 
 } // namespace chip8_emu

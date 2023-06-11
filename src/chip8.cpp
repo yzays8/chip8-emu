@@ -28,12 +28,11 @@ Chip8::Chip8(bool flag_debug)
       is_sleeping_{false},
       is_running_{false},
       exit_success_{true},
+      rand_{std::make_unique<Rand>()},
       graphic_{std::make_shared<Graphic>()},
       delay_timer_{std::make_unique<DelayTimer>(is_sleeping_)},
       sound_timer_{std::make_unique<SoundTimer>(is_sleeping_)},
-      input_{std::make_unique<Input>(graphic_)},
-      gen_{rd_()},
-      dis_{0, 255} {
+      input_{std::make_unique<Input>(graphic_)} {
   std::copy(kSprites.begin(), kSprites.end(), mem_.begin());
 }
 
@@ -73,7 +72,7 @@ void Chip8::Tick() {
   InterpretInstruction(inst);
 }
 
-bool Chip8::RunLoop() {
+bool Chip8::Run() {
   const auto interval = std::chrono::duration<int, std::ratio<1, kMainCycles>>(1);  // 1/kMainCycles seconds
   MessageType msg;
   bool one_step = false;
@@ -282,7 +281,7 @@ void Chip8::InterpretInstruction(uint16_t inst) {
       break;
     case 0xC000:
       // 0xCxkk
-      v_[(inst & 0x0F00) >> 8] = dis_(gen_) & (inst & 0x00FF);
+      v_[(inst & 0x0F00) >> 8] = rand_->GetRandomByte() & (inst & 0x00FF);
       pc_ += 2;
       break;
     case 0xD000: {

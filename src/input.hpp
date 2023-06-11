@@ -3,6 +3,7 @@
 #include <array>
 #include <memory>
 
+#include "utils.hpp"
 #include "graphic.hpp"
 
 namespace chip8_emu {
@@ -25,6 +26,7 @@ class Input {
   std::array<bool, 16> key_;
 
   bool space_is_released_;
+  std::unique_ptr<Rand> rand_;
   std::shared_ptr<Graphic> graphic_;
 };
 

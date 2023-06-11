@@ -7,9 +7,7 @@
 namespace chip8_emu {
 
 Input::Input(std::shared_ptr<Graphic> graphic)
-    : key_{}, space_is_released_{true}, graphic_{graphic} {
-  std::srand((unsigned)time(nullptr));
-}
+    : key_{}, space_is_released_{true}, rand_{std::make_unique<Rand>()}, graphic_{graphic} {}
 
 bool Input::GetKey(uint8_t num) const {
   return key_[num];
@@ -89,9 +87,9 @@ MessageType Input::ProcessInput() {
             break;
           case SDLK_9: {
             Color color {
-              static_cast<uint8_t>(rand() % 256),
-              static_cast<uint8_t>(rand() % 256),
-              static_cast<uint8_t>(rand() % 256),
+              rand_->GetRandomByte(),
+              rand_->GetRandomByte(),
+              rand_->GetRandomByte(),
             };
             graphic_->ChangeObjectColor(color);
             msg = MSG_REDRAW;
@@ -99,9 +97,9 @@ MessageType Input::ProcessInput() {
           }
           case SDLK_0: {
             Color color {
-              static_cast<uint8_t>(rand() % 256),
-              static_cast<uint8_t>(rand() % 256),
-              static_cast<uint8_t>(rand() % 256),
+              rand_->GetRandomByte(),
+              rand_->GetRandomByte(),
+              rand_->GetRandomByte(),
             };
             graphic_->ChangeBackGroundColor(color);
             msg = MSG_REDRAW;

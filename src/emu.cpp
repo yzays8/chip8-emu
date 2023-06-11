@@ -15,5 +15,9 @@ int main(int argc, char* argv[]) {
 
   chip8->LoadROM(argv[1]);
   chip8->InitializeWindow(kWindowScale);
-  chip8->RunLoop();
+  bool success = chip8->RunLoop();
+  if (!success) {
+    std::cerr << "Error" << std::endl;
+    return 1;
+  }
 }

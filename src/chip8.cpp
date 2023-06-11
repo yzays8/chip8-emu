@@ -27,6 +27,7 @@ Chip8::Chip8(bool flag_debug)
       drawable_{false},
       is_sleeping_{false},
       is_running_{false},
+      exit_success_{true},
       graphic_{std::make_shared<Graphic>()},
       delay_timer_{std::make_unique<DelayTimer>(is_sleeping_)},
       sound_timer_{std::make_unique<SoundTimer>(is_sleeping_)},
@@ -72,7 +73,7 @@ void Chip8::Tick() {
   InterpretInstruction(inst);
 }
 
-void Chip8::RunLoop() {
+bool Chip8::RunLoop() {
   const auto interval = std::chrono::duration<int, std::ratio<1, kMainCycles>>(1);  // 1/kMainCycles seconds
   MessageType msg;
   bool one_step = false;
@@ -103,9 +104,8 @@ void Chip8::RunLoop() {
         assert(false);
     }
 
-    if ((is_running_ && !is_sleeping_)
-      || (is_running_ && is_sleeping_ && one_step))
-    {
+    if ((is_running_ && !is_sleeping_) ||
+        (is_running_ && is_sleeping_ && one_step)) {
       Tick();
       if (drawable_) {
         drawable_ = false;
@@ -115,6 +115,8 @@ void Chip8::RunLoop() {
       std::this_thread::sleep_until(start_time + interval);
     }
   }
+
+  return exit_success_;
 }
 
 void Chip8::Debug(uint16_t inst) {
@@ -141,6 +143,7 @@ void Chip8::InterpretInstruction(uint16_t inst) {
         default:
           std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << inst << std::endl;
           is_running_ = false;
+          exit_success_ = false;
           break;
       }
       break;
@@ -257,6 +260,7 @@ void Chip8::InterpretInstruction(uint16_t inst) {
         default:
           std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << inst << std::endl;
           is_running_ = false;
+          exit_success_ = false;
           break;
       }
       break;
@@ -325,6 +329,7 @@ void Chip8::InterpretInstruction(uint16_t inst) {
         default:
           std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << inst << std::endl;
           is_running_ = false;
+          exit_success_ = false;
           break;
       }
       break;
@@ -405,12 +410,14 @@ void Chip8::InterpretInstruction(uint16_t inst) {
         default:
           std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << inst << std::endl;
           is_running_ = false;
+          exit_success_ = false;
           break;
       }
       break;
     default:
       std::cerr << "Non-existent instruction: 0x" << std::uppercase << std::hex << inst << std::endl;
       is_running_ = false;
+      exit_success_ = false;
       break;
   }
 }

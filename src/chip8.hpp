@@ -20,7 +20,7 @@ class Chip8 {
   Chip8(bool flag_debug);
   void LoadROM(const std::string rom);
   void InitializeWindow(int window_scale);
-  void RunLoop();
+  bool RunLoop();
 
  private:
   void StartTimers();
@@ -39,6 +39,7 @@ class Chip8 {
   bool drawable_;
   std::atomic_bool is_sleeping_;
   bool is_running_;
+  bool exit_success_;
 
   std::shared_ptr<Graphic> graphic_;
   std::unique_ptr<DelayTimer> delay_timer_;

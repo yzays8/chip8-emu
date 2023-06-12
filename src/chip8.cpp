@@ -16,14 +16,14 @@
 
 namespace chip8_emu {
 
-Chip8::Chip8(bool flag_debug)
+Chip8::Chip8(bool debug_mode)
     : mem_{},
       stack_{},
       v_{},
       i_{0},
       pc_{0x200},
       sp_{0},
-      flag_debug_{flag_debug},
+      debug_mode_{debug_mode},
       drawable_{false},
       is_sleeping_{false},
       is_running_{false},
@@ -124,7 +124,7 @@ void Chip8::Debug(uint16_t inst) {
 }
 
 void Chip8::InterpretInstruction(uint16_t inst) {
-  if (flag_debug_) Debug(inst);
+  if (debug_mode_) Debug(inst);
 
   switch (inst & 0xF000) {
     case 0x0000:

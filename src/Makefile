@@ -15,11 +15,11 @@ clean:
 
 .PHONY: run
 run:
-	./$(TARGET) $(ROM) 0
+	./$(TARGET) $(ROM)
 
 .PHONY: debug
 debug:
-	./$(TARGET) $(ROM) 1
+	./$(TARGET) -d $(ROM)
 
 $(TARGET): $(OBJS) Makefile
 	$(CC) $(OBJS) $(LIBS) $(LDFLAGS) -o $@

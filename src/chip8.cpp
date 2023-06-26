@@ -10,6 +10,7 @@
 #include <SDL2/SDL.h>
 
 #include "chip8.hpp"
+#include "utils.hpp"
 #include "graphic.hpp"
 #include "delay_timer.hpp"
 #include "sound_timer.hpp"
@@ -37,8 +38,8 @@ Chip8::Chip8(bool debug_mode)
 }
 
 void Chip8::LoadROM(const std::string rom) {
-  if (std::filesystem::is_directory(rom)) {
-    std::cerr << rom << " is a directory" << std::endl;
+  if (!std::filesystem::is_regular_file(rom)) {
+    std::cerr << rom << " is not a regular file" << std::endl;
     std::exit(EXIT_FAILURE);
   }
   std::ifstream ifs(rom, std::ios::binary | std::ios::in);

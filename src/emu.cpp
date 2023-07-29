@@ -9,7 +9,7 @@ const std::string kBeepFilePath{"../sound/beep.wav"};
 
 int main(int argc, char** argv) {
   if (argc != 2 && argc != 3) {
-    std::cerr << "Arguments error" << std::endl;
+    std::cerr << "Usage: " << argv[0] << " [-d] <rom_path>" << std::endl;
     return 1;
   }
 
@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
         debug_mode = true;
         break;
       default:
-        std::cerr << "Usage: " << argv[0] << " [-d <rom_path>]" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " [-d] <rom_path>" << std::endl;
         return 1;
     }
   }

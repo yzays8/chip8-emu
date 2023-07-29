@@ -2,7 +2,7 @@
 
 ## About
 
-Simple but full-featured CHIP-8 emulator.
+This is a simple but full-featured CHIP-8 emulator.
 
 ## Features
 
@@ -10,27 +10,25 @@ Simple but full-featured CHIP-8 emulator.
 - The sound system works.
 - Press <kbd>Space</kbd> to sleep.
 - Press <kbd>T</kbd> to advance one CPU cycle during sleep.
-- Press <kbd>9</kbd> or <kbd>0</kbd> to change the objects/background color.
+- Press <kbd>9</kbd> / <kbd>0</kbd> to change the objects / background color.
 
 ## Requirement
 
-SDL2 as a graphics and sound library
+SDL2 is required as a graphics and sound library.
 
-### Linux (Ubuntu)
+### Debian (Ubuntu)
 
 ```sh
-sudo apt-get install libsdl2-dev
+sudo apt install libsdl2-dev
 ```
 
 ### Mac
 
 ```sh
-brew install sdl2 sdl2_mixer sdl2_gfx
+brew install sdl2 sdl2_mixer
 ```
 
-## Usage
-
-Prepare the ROM in advance.
+## Build & Run
 
 ### Standard mode
 
@@ -39,7 +37,7 @@ make
 make run ROM=<rom_path>
 ```
 
-### Debug mode
+### Debug mode (Output executing instructions)
 
 ```sh
 make
@@ -48,7 +46,7 @@ make debug ROM=<rom_path>
 
 ## Key bindings
 
-#### Original Chip8 keyboard
+### Original Chip8 keyboard
 
 | | | | |
 |-|-|-|-|
@@ -57,7 +55,7 @@ make debug ROM=<rom_path>
 |7|8|9|E|
 |A|0|B|F|
 
-#### Emulated keyboard
+### Emulated keyboard
 
 | | | | |
 |-|-|-|-|
@@ -69,4 +67,3 @@ make debug ROM=<rom_path>
 ## References
 
 - <http://devernay.free.fr/hacks/chip8/C8TECH10.HTM>
-- <https://tobiasvl.github.io/blog/write-a-chip-8-emulator/>

@@ -1,6 +1,8 @@
 #pragma once
 
+#include <cstdint>
 #include <array>
+
 #include <SDL2/SDL.h>
 
 namespace chip8_emu {

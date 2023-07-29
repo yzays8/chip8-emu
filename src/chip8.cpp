@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -5,8 +6,8 @@
 #include <memory>
 #include <chrono>
 #include <random>
-#include <cassert>
 #include <filesystem>
+
 #include <SDL2/SDL.h>
 
 #include "chip8.hpp"

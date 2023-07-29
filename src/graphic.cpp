@@ -1,5 +1,6 @@
 #include <iostream>
 #include <array>
+
 #include <SDL2/SDL.h>
 
 #include "graphic.hpp"

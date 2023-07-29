@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
         debug_mode = true;
         break;
       default:
-        std::cout << "Usage: " << argv[0] << " [-d] <rom_path>" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " [-d <rom_path>]" << std::endl;
         return 1;
     }
   }

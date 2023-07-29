@@ -132,11 +132,13 @@ void Chip8::InterpretInstruction(uint16_t inst) {
     case 0x0000:
       switch (inst) {
         case 0x00E0:
+          // CLS
           graphic_->GetBuffer().fill({}); // 0-fill
           drawable_ = true;
           pc_ += 2;
           break;
         case 0x00EE:
+          // RET
           --sp_;
           pc_ = stack_[sp_]; // pop
           pc_ += 2;
@@ -150,16 +152,19 @@ void Chip8::InterpretInstruction(uint16_t inst) {
       break;
     case 0x1000:
       // 0x1nnn
+      // JP addr
       pc_ = inst & 0x0FFF;
       break;
     case 0x2000:
       // 0x2nnn
+      // CALL addr
       stack_[sp_] = pc_;  // push
       ++sp_;
       pc_ = inst & 0x0FFF;
       break;
     case 0x3000:
       // 0x3xkk
+      // SE Vx, byte
       if (v_[(inst & 0x0F00) >> 8] == (inst & 0x00FF)) {
         pc_ += 2;
       }
@@ -167,6 +172,7 @@ void Chip8::InterpretInstruction(uint16_t inst) {
       break;
     case 0x4000:
       // 0x4xkk
+      // SNE Vx, byte
       if (v_[(inst & 0x0F00) >> 8] != (inst & 0x00FF)) {
         pc_ += 2;
       }
@@ -174,6 +180,7 @@ void Chip8::InterpretInstruction(uint16_t inst) {
       break;
     case 0x5000:
       // 0x5xy0
+      // SE Vx, Vy
       if (v_[(inst & 0x0F00) >> 8] == v_[(inst & 0x00F0) >> 4]) {
         pc_ += 2;
       }
@@ -181,11 +188,13 @@ void Chip8::InterpretInstruction(uint16_t inst) {
       break;
     case 0x6000:
       // 0x6xkk
+      // LD Vx, byte
       v_[(inst & 0x0F00) >> 8] = inst & 0x00FF;
       pc_ += 2;
       break;
     case 0x7000:
       // 0x7xkk
+      // ADD Vx, byte
       v_[(inst & 0x0F00) >> 8] += inst & 0x00FF;
       pc_ += 2;
       break;
@@ -193,29 +202,34 @@ void Chip8::InterpretInstruction(uint16_t inst) {
       switch (inst & 0x000F) {
         case 0x0000:
           // 0x8xy0
+          // LD Vx, Vy
           v_[(inst & 0x0F00) >> 8] = v_[(inst & 0x00F0) >> 4];
           pc_ += 2;
           break;
         case 0x0001:
           // 0x8xy1
+          // OR Vx, Vy
           v_[(inst & 0x0F00) >> 8] |= v_[(inst & 0x00F0) >> 4];
           v_[0xF] = 0;
           pc_ += 2;
           break;
         case 0x0002:
           // 0x8xy2
+          // AND Vx, Vy
           v_[(inst & 0x0F00) >> 8] &= v_[(inst & 0x00F0) >> 4];
           v_[0xF] = 0;
           pc_ += 2;
           break;
         case 0x0003:
           // 0x8xy3
+          // XOR Vx, Vy
           v_[(inst & 0x0F00) >> 8] ^= v_[(inst & 0x00F0) >> 4];
           v_[0xF] = 0;
           pc_ += 2;
           break;
         case 0x0004: {
           // 0x8xy4
+          // ADD Vx, Vy
           uint16_t sum = v_[(inst & 0x0F00) >> 8] + v_[(inst & 0x00F0) >> 4];
           if (sum > 0xFF) {
             v_[0xF] = 1;
@@ -228,6 +242,7 @@ void Chip8::InterpretInstruction(uint16_t inst) {
         }
         case 0x0005:
           // 0x8xy5
+          // SUB Vx, Vy
           if (v_[(inst & 0x0F00) >> 8] > v_[(inst & 0x00F0) >> 4]) {
             v_[0xF] = 1;
           } else {
@@ -238,12 +253,14 @@ void Chip8::InterpretInstruction(uint16_t inst) {
           break;
         case 0x0006:
           // 0x8xy6
+          // SHR Vx {, Vy}
           v_[0xF] = v_[(inst & 0x0F00) >> 8] & 0x01;
           v_[(inst & 0x0F00) >> 8] >>= 1;
           pc_ += 2;
           break;
         case 0x0007:
           // 0x8xy7
+          // SUBN Vx, Vy
           if (v_[(inst & 0x00F0) >> 4] > v_[(inst & 0x0F00) >> 8]) {
             v_[0xF] = 1;
           } else {
@@ -254,6 +271,7 @@ void Chip8::InterpretInstruction(uint16_t inst) {
           break;
         case 0x000E:
           // 0x8xyE
+          // SHL Vx {, Vy}
           v_[0xF] = v_[(inst & 0x0F00) >> 8] >> 7;
           v_[(inst & 0x0F00) >> 8] <<= 1;
           pc_ += 2;
@@ -267,6 +285,7 @@ void Chip8::InterpretInstruction(uint16_t inst) {
       break;
     case 0x9000:
       // 0x9xy0
+      // SNE Vx, Vy
       if (v_[(inst & 0x0F00) >> 8] != v_[(inst & 0x00F0) >> 4]) {
         pc_ += 2;
       }
@@ -274,20 +293,24 @@ void Chip8::InterpretInstruction(uint16_t inst) {
       break;
     case 0xA000:
       // 0xAnnn
+      // LD I, addr
       i_ = inst & 0x0FFF;
       pc_ += 2;
       break;
     case 0xB000:
       // 0xBnnn
+      // JP V0, addr
       pc_ = (inst & 0x0FFF) + v_[0];
       break;
     case 0xC000:
       // 0xCxkk
+      // RND Vx, byte
       v_[(inst & 0x0F00) >> 8] = rand_->GetRandomByte() & (inst & 0x00FF);
       pc_ += 2;
       break;
     case 0xD000: {
       // 0xDxyn
+      // DRW Vx, Vy, nibble
         uint16_t x = v_[(inst & 0x0F00) >> 8] % 64;
         uint16_t y = v_[(inst & 0x00F0) >> 4] % 32;
         const uint16_t n = inst & 0x000F;
@@ -315,6 +338,7 @@ void Chip8::InterpretInstruction(uint16_t inst) {
       switch (inst & 0x00FF) {
         case 0x009E:
           // 0xEx9E
+          // SKP Vx
           if (input_->GetKey(v_[(inst & 0x0F00) >> 8]) == 1) {
             pc_ += 2;
           }
@@ -322,6 +346,7 @@ void Chip8::InterpretInstruction(uint16_t inst) {
           break;
         case 0x00A1:
           // 0xExA1
+          // SKNP Vx
           if (input_->GetKey(v_[(inst & 0x0F00) >> 8]) == 0) {
             pc_ += 2;
           }
@@ -338,11 +363,13 @@ void Chip8::InterpretInstruction(uint16_t inst) {
       switch (inst & 0x00FF) {
         case 0x0007:
           // 0xFx07
+          // LD Vx, DT
           v_[(inst & 0x0F00) >> 8] = delay_timer_->GetRegisterValue();
           pc_ += 2;
           break;
         case 0x000A: {
           // 0xFx0A
+          // LD Vx, K
           bool key_is_pressed = false;
           for (int i = 0; i < 16; ++i) {
             if (input_->GetKey(i) == 1) {
@@ -357,16 +384,19 @@ void Chip8::InterpretInstruction(uint16_t inst) {
         }
         case 0x0015:
           // 0xFx15
+          // LD DT, Vx
           delay_timer_->SetRegisterValue(v_[(inst & 0x0F00) >> 8]);
           pc_ += 2;
           break;
         case 0x0018:
           // 0xFx18
+          // LD ST, Vx
           sound_timer_->SetRegisterValue(v_[(inst & 0x0F00) >> 8]);
           pc_ += 2;
           break;
         case 0x001E:
           // 0xFx1E
+          // ADD I, Vx
           // Amiga
           if ((i_ += v_[(inst & 0x0F00) >> 8]) > 0x0FFF) {
             v_[0xF] = 1;
@@ -377,11 +407,13 @@ void Chip8::InterpretInstruction(uint16_t inst) {
           break;
         case 0x0029:
           // 0xFx29
+          // LD F, Vx
           i_ = 5 * v_[(inst & 0x0F00) >> 8]; // The first address of the sprites is 0x000
           pc_ += 2;
           break;
         case 0x0033:
           // 0xFx33
+          // LD B, Vx
           mem_[i_] = v_[(inst & 0x0F00) >> 8] / 100;
           mem_[i_ + 1] = (v_[(inst & 0x0F00) >> 8] / 10) % 10;
           mem_[i_ + 2] = v_[(inst & 0x0F00) >> 8] % 10;
@@ -389,6 +421,7 @@ void Chip8::InterpretInstruction(uint16_t inst) {
           break;
         case 0x0055: {
           // 0xFx55
+          // LD [I], Vx
           // Original COSMAC VIP implementation for old ROMs
             const uint16_t tmp = (inst & 0x0F00) >> 8;
             for (uint16_t i = 0; i <= tmp; ++i) {   // Forgetting the equal sign causes tons of weird behavior
@@ -400,6 +433,7 @@ void Chip8::InterpretInstruction(uint16_t inst) {
         }
         case 0x0065: {
           // 0xFx65
+          // LD Vx, [I]
             const uint16_t tmp = (inst & 0x0F00) >> 8;
             for (uint16_t i = 0; i <= tmp; ++i) {   // Forgetting the equal sign causes tons of weird behavior
               v_[i] = mem_[i_ + i];

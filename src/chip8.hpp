@@ -18,7 +18,7 @@ constexpr int kMainCycles = 500;  // 500 Hz
 
 class Chip8 {
  public:
-  Chip8(bool debug_mode);
+  Chip8(bool debug_mode, const std::string& beep_file_path);
   void LoadROM(const std::string rom);
   void InitializeWindow(int window_scale);
   bool Run();

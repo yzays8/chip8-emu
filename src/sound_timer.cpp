@@ -8,14 +8,15 @@
 
 namespace chip8_emu {
 
-SoundTimer::SoundTimer(std::atomic_bool& is_sleeping)
+SoundTimer::SoundTimer(std::atomic_bool& is_sleeping, const std::string& beep_file_path)
     : st_{0},
       mutex_{},
       thread_{},
       timer_is_running_{false},
       is_beeping_{false},
       system_is_sleeping_{is_sleeping},
-      sound_{std::make_unique<Sound>()}{
+      sound_{std::make_unique<Sound>()},
+      beep_file_path_{beep_file_path} {
 }
 
 SoundTimer::~SoundTimer() {
@@ -28,7 +29,7 @@ void SoundTimer::Start() {
   const auto interval = std::chrono::duration<int, std::ratio<1, kSoundTimerCycles>>(1); // 60 Hz
 
   sound_->InitializeSound();
-  sound_->OpenAudioFile(kBeepFilePath);
+  sound_->OpenAudioFile(beep_file_path_.c_str());
 
   timer_is_running_ = true;
   thread_ = std::thread([this, interval] {

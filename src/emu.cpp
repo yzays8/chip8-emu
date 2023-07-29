@@ -5,6 +5,7 @@
 #include "chip8.hpp"
 
 constexpr int kWindowScale = 15;  // change window size
+const std::string kBeepFilePath{"../sound/beep.wav"};
 
 int main(int argc, char** argv) {
   if (argc != 2 && argc != 3) {
@@ -27,7 +28,7 @@ int main(int argc, char** argv) {
     }
   }
 
-  auto chip8 = std::make_unique<chip8_emu::Chip8>(debug_mode);
+  auto chip8 = std::make_unique<chip8_emu::Chip8>(debug_mode, kBeepFilePath);
 
   chip8->LoadROM(argv[optind]);
   chip8->InitializeWindow(kWindowScale);

@@ -14,7 +14,7 @@ constexpr int kSoundTimerCycles = 60; // 60 Hz
 
 class SoundTimer {
  public:
-  SoundTimer(std::atomic_bool& is_sleeping);
+  SoundTimer(std::atomic_bool& is_sleeping, const std::string& beep_file_path);
   ~SoundTimer();
   void Start();
   void SetRegisterValue(uint8_t value);
@@ -31,6 +31,7 @@ class SoundTimer {
   bool is_beeping_;
   std::atomic_bool& system_is_sleeping_;
   std::unique_ptr<Sound> sound_;
+  std::string beep_file_path_;
 };
 
 } // namespace chip8_emu

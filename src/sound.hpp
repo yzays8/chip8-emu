@@ -5,8 +5,6 @@
 
 namespace chip8_emu {
 
-const char kBeepFilePath[] = "../sound/beep.wav";
-
 class Sound {
  public:
   Sound();

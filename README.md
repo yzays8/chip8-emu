@@ -28,19 +28,23 @@ sudo apt install libsdl2-dev
 brew install sdl2 sdl2_mixer
 ```
 
-## Build & Run
+## Build
+
+```sh
+make
+```
+
+## Run
 
 ### Standard mode
 
 ```sh
-make
 make run ROM=<rom_path>
 ```
 
-### Debug mode (Output executing instructions)
+### Debug mode (Show current state)
 
 ```sh
-make
 make debug ROM=<rom_path>
 ```
 

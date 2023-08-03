@@ -38,7 +38,7 @@ Chip8::Chip8(bool debug_mode)
   std::copy(kSprites.begin(), kSprites.end(), mem_.begin());
 }
 
-void Chip8::LoadROM(const std::string rom) {
+void Chip8::LoadROM(const std::string& rom) {
   namespace fs = std::filesystem;
   if (!fs::is_regular_file(rom)) {
     std::cerr << fs::weakly_canonical(fs::absolute(rom)) << " is not a regular file" << std::endl;

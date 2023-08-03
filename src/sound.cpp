@@ -1,4 +1,5 @@
 #include <iostream>
+#include <filesystem>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
@@ -28,9 +29,10 @@ void Sound::InitializeSound() {
 }
 
 void Sound::OpenAudioFile(const char* file) {
+  namespace fs = std::filesystem;
   beep_ = Mix_LoadWAV(file);
   if (!beep_) {
-    std::cerr << "Failed to open the audio file" << std::endl;
+    std::cerr << "Failed to open the audio file: " << fs::weakly_canonical(fs::absolute(file)) << std::endl;
     Mix_CloseAudio();
     SDL_Quit();
     std::exit(EXIT_FAILURE);

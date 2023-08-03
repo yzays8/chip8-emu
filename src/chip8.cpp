@@ -39,13 +39,14 @@ Chip8::Chip8(bool debug_mode, const std::string& beep_file_path)
 }
 
 void Chip8::LoadROM(const std::string rom) {
-  if (!std::filesystem::is_regular_file(rom)) {
-    std::cerr << rom << " is not a regular file" << std::endl;
+  namespace fs = std::filesystem;
+  if (!fs::is_regular_file(rom)) {
+    std::cerr << fs::weakly_canonical(fs::absolute(rom)) << " is not a regular file" << std::endl;
     std::exit(EXIT_FAILURE);
   }
-  std::ifstream ifs(rom, std::ios::binary | std::ios::in);
+  std::ifstream ifs{rom, std::ios::binary | std::ios::in};
   if (!ifs.is_open()) {
-    std::cerr << "Failed to open ROM" << std::endl;
+    std::cerr << "Failed to open ROM: " << fs::weakly_canonical(fs::absolute(rom)) << std::endl;
     std::exit(EXIT_FAILURE);
   }
 

@@ -8,6 +8,8 @@
 
 namespace chip8_emu {
 
+const std::string kBeepFilePath{"../sound/beep.wav"};
+
 Sound::Sound() : beep_{nullptr} {}
 
 Sound::~Sound() {
@@ -26,11 +28,13 @@ void Sound::InitializeSound() {
     SDL_Quit();
     std::exit(EXIT_FAILURE);
   }
+
+  OpenAudioFile(kBeepFilePath);
 }
 
-void Sound::OpenAudioFile(const char* file) {
+void Sound::OpenAudioFile(const std::string& file) {
   namespace fs = std::filesystem;
-  beep_ = Mix_LoadWAV(file);
+  beep_ = Mix_LoadWAV(file.c_str());
   if (!beep_) {
     std::cerr << "Failed to open the audio file: " << fs::weakly_canonical(fs::absolute(file)) << std::endl;
     Mix_CloseAudio();

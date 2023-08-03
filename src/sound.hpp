@@ -5,17 +5,20 @@
 
 namespace chip8_emu {
 
+extern const std::string kBeepFilePath;
+
 class Sound {
  public:
   Sound();
   ~Sound();
   void InitializeSound();
-  void OpenAudioFile(const char* file);
   void Beep();
   void StopBeep();
   void Terminate();
 
  private:
+  void OpenAudioFile(const std::string& file);
+
   Mix_Chunk* beep_;
 };
 

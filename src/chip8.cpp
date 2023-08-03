@@ -18,7 +18,7 @@
 
 namespace chip8_emu {
 
-Chip8::Chip8(bool debug_mode, const std::string& beep_file_path)
+Chip8::Chip8(bool debug_mode)
     : mem_{},
       stack_{},
       v_{},
@@ -33,7 +33,7 @@ Chip8::Chip8(bool debug_mode, const std::string& beep_file_path)
       rand_{std::make_unique<Rand>()},
       graphic_{std::make_shared<Graphic>()},
       delay_timer_{std::make_unique<DelayTimer>(is_sleeping_)},
-      sound_timer_{std::make_unique<SoundTimer>(is_sleeping_, beep_file_path)},
+      sound_timer_{std::make_unique<SoundTimer>(is_sleeping_)},
       input_{std::make_unique<Input>(graphic_)} {
   std::copy(kSprites.begin(), kSprites.end(), mem_.begin());
 }
